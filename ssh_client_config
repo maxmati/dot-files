@@ -1,0 +1,15 @@
+Host charon borg
+	HostName %h.kis.agh.edu.pl
+	ForwardX11 yes
+	User matenowo
+
+Host student
+	Hostname student.agh.edu.pl
+
+Host kalinka
+	Hostname kalinka.maxmati.pl
+
+Host *.kis.agh.edu.pl
+	User matenowo
+Host *
+	User maxmati
