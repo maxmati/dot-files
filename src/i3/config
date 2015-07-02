@@ -39,13 +39,20 @@ bindsym $mod+d exec dmenu_run
 # installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
-# alternatively, you can use the cursor keys:
+
+<?php if (gethostname() === "felis"): ?>
+# move workspace to monitor
+bindsym $mod+Mod1+Left move workspace to output left
+bindsym $mod+Mod1+Right move workspace to output right
+<?php endif ?>
+
+# change focuse:
 bindsym $mod+Left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
-# alternatively, you can use the cursor keys:
+# move focused window:
 bindsym $mod+Shift+Left move left
 bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
@@ -139,9 +146,15 @@ bindsym $mod+Alt+0 [title="Buddy List"] scratchpad show
 # finds out, if available)
 bar {
         status_command i3status
+<?php if (gethostname() === "leopardus"): ?>
+		tray_output DVI-0
+<?php endif ?>
 }
 
+<?php if (gethostname() === "felis"): ?>
 exec --no-startup-id nm-applet
+<?php endif ?>
+
 exec --no-startup-id pidgin
 exec --no-startup-id redshift  -l 50.07:19.92
 exec --no-startup-id xautolock -time 5 -locker "i3lock -i ~/.i3/cat.png"
@@ -168,6 +181,8 @@ bindsym XF86AudioRaiseVolume exec "pactl set-sink-volume 0 +5%; killall -USR1 i3
 bindsym XF86AudioLowerVolume exec "pactl set-sink-volume 0 -- -5%; killall -USR1 i3status"
 bindsym XF86AudioMute exec "pactl set-sink-mute 0 toggle; killall -USR1 i3status"
 
+<?php if (gethostname() === "felis"): ?>
 # Sreen brightness controls
 bindsym XF86MonBrightnessUp exec xbacklight -inc 5 # increase screen brightness
 bindsym XF86MonBrightnessDown exec xbacklight -dec 5 # decrease screen brightness
+<?php endif ?>
