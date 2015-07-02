@@ -11,6 +11,8 @@
 
 set $mod Mod4
 
+mouse_warping none
+
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
@@ -84,29 +86,29 @@ bindsym $mod+a focus parent
 # focus the child container
 #bindsym $mod+d focus child
 
-set $ws10 "0:www"
-set $ws11 "1"
-set $ws12 "2"
-set $ws13 "3"
-set $ws14 "4"
-set $ws15 "5"
-set $ws16 "6"
-set $ws17 "7"
-set $ws18 "8"
-set $ws19 "9"
-set $ws110 "10"
+set $ws10 "0:0:www"
+set $ws11 "1:1"
+set $ws12 "2:2"
+set $ws13 "3:3"
+set $ws14 "4:4"
+set $ws15 "5:5"
+set $ws16 "6:6"
+set $ws17 "7:7"
+set $ws18 "8:8"
+set $ws19 "9:9"
+set $ws110 "10:10"
 
 <?php if (gethostname() === "leopardus"): ?>
-set $ws21 "I"
-set $ws22 "II"
-set $ws23 "III"
-set $ws24 "IV"
-set $ws25 "V"
-set $ws26 "VI"
-set $ws27 "VII"
-set $ws28 "VIII"
-set $ws29 "IX"
-set $ws210 "X"
+set $ws21 "11:I"
+set $ws22 "12:II"
+set $ws23 "13:III"
+set $ws24 "14:IV"
+set $ws25 "15:V"
+set $ws26 "16:VI"
+set $ws27 "17:VII"
+set $ws28 "18:VIII"
+set $ws29 "19:IX"
+set $ws210 "20:X"
 
 workspace $ws11 output DVI-0
 workspace $ws12 output DVI-0
@@ -140,6 +142,17 @@ bindsym $mod+F7 workspace $ws27
 bindsym $mod+F8 workspace $ws28
 bindsym $mod+F9 workspace $ws29
 bindsym $mod+F10 workspace $ws210
+
+bindsym $mod+Shift+F1 move container to workspace $ws21
+bindsym $mod+Shift+F2 move container to workspace $ws22
+bindsym $mod+Shift+F3 move container to workspace $ws23
+bindsym $mod+Shift+F4 move container to workspace $ws24
+bindsym $mod+Shift+F5 move container to workspace $ws25
+bindsym $mod+Shift+F6 move container to workspace $ws26
+bindsym $mod+Shift+F7 move container to workspace $ws27
+bindsym $mod+Shift+F8 move container to workspace $ws28
+bindsym $mod+Shift+F9 move container to workspace $ws29
+bindsym $mod+Shift+F10 move container to workspace $ws210
 <?php endif ?>
 
 
@@ -157,17 +170,17 @@ bindsym $mod+9 workspace $ws19
 bindsym $mod+0 workspace $ws110
 
 # move focused container to workspace
-bind $mod+Shift+49 move container to workspace 0:www
-bindsym $mod+Shift+1 move container to workspace 1
-bindsym $mod+Shift+2 move container to workspace 2
-bindsym $mod+Shift+3 move container to workspace 3
-bindsym $mod+Shift+4 move container to workspace 4
-bindsym $mod+Shift+5 move container to workspace 5
-bindsym $mod+Shift+6 move container to workspace 6
-bindsym $mod+Shift+7 move container to workspace 7
-bindsym $mod+Shift+8 move container to workspace 8
-bindsym $mod+Shift+9 move container to workspace 9
-bindsym $mod+Shift+0 move container to workspace 10
+bind $mod+Shift+49 move container to workspace $ws10
+bindsym $mod+Shift+1 move container to workspace $ws11
+bindsym $mod+Shift+2 move container to workspace $ws12
+bindsym $mod+Shift+3 move container to workspace $ws13
+bindsym $mod+Shift+4 move container to workspace $ws14
+bindsym $mod+Shift+5 move container to workspace $ws15
+bindsym $mod+Shift+6 move container to workspace $ws16
+bindsym $mod+Shift+7 move container to workspace $ws17
+bindsym $mod+Shift+8 move container to workspace $ws18
+bindsym $mod+Shift+9 move container to workspace $ws19
+bindsym $mod+Shift+0 move container to workspace $ws110
 
 # reload the configuration file
 bindsym $mod+Shift+c reload
@@ -205,6 +218,7 @@ bindsym $mod+Alt+0 [title="Buddy List"] scratchpad show
 # finds out, if available)
 bar {
         status_command i3status
+		strip_workspace_numbers yes
 <?php if (gethostname() === "leopardus"): ?>
 		tray_output DVI-0
 <?php endif ?>
