@@ -249,10 +249,16 @@ mode "$mode_system" {
 
 bindsym $mod+l mode "$mode_system"
 
+<?php if (gethostname() === "leopardus"): ?>
+set $sink 1
+<?php elseif (gethostname() === "felis"): ?>
+set $sink 1
+<?php endif ?>
+
 # Pulse Audio controls
-bindsym XF86AudioRaiseVolume exec "pactl set-sink-volume 0 +5%; killall -USR1 i3status"
-bindsym XF86AudioLowerVolume exec "pactl set-sink-volume 0 -- -5%; killall -USR1 i3status"
-bindsym XF86AudioMute exec "pactl set-sink-mute 0 toggle; killall -USR1 i3status"
+bindsym XF86AudioRaiseVolume exec "pactl set-sink-volume $sink +5%; killall -USR1 i3status"
+bindsym XF86AudioLowerVolume exec "pactl set-sink-volume $sink -- -5%; killall -USR1 i3status"
+bindsym XF86AudioMute exec "pactl set-sink-mute $sink toggle; killall -USR1 i3status"
 
 <?php if (gethostname() === "felis"): ?>
 # Sreen brightness controls
