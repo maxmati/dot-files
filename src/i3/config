@@ -252,7 +252,7 @@ bindsym $mod+l mode "$mode_system"
 <?php if (gethostname() === "leopardus"): ?>
 set $sink 1
 <?php elseif (gethostname() === "felis"): ?>
-set $sink 1
+set $sink 0
 <?php endif ?>
 
 # Pulse Audio controls
