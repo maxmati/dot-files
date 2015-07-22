@@ -28,6 +28,8 @@ set __fish_git_prompt_char_upstream_behind '-'
 function fish_prompt
   set last_status $status
 
+  printf '%s@%s ' (whoami) (hostname)
+
   set_color $fish_color_cwd
   printf '%s' (prompt_pwd)
   set_color normal
