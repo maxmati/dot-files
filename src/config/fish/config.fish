@@ -1,3 +1,8 @@
+if status --is-interactive
+	keychain --eval --quiet -Q id_rsa | source
+end
+
+
 set PATH $PATH ~/bin ~/.gem/ruby/2.0.0/bin/
 alias grep="grep --color=auto"
 set GREP_OPTIONS
