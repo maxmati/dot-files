@@ -10,6 +10,14 @@ Host kalinka
 	Hostname kalinka.maxmati.pl
 	ForwardAgent yes
 
+Host terrarium
+	Hostname terrarium.maxmati.pl
+	ForwardAgent yes
+
+Host *.maxmati.pl
+	ForwardAgent yes
+
+
 Host *.kis.agh.edu.pl
 	User matenowo
 Host *
