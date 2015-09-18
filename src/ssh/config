@@ -6,12 +6,8 @@ Host charon borg
 Host student
 	Hostname student.agh.edu.pl
 
-Host kalinka
-	Hostname kalinka.maxmati.pl
-	ForwardAgent yes
-
-Host terrarium
-	Hostname terrarium.maxmati.pl
+Host kalinka terrarium janeczka
+	Hostname %h.maxmati.pl
 	ForwardAgent yes
 
 Host *.maxmati.pl
