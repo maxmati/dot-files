@@ -257,7 +257,7 @@ set $sink 0
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec "pactl set-sink-volume $sink +5%; killall -USR1 i3status"
-bindsym XF86AudioLowerVolume exec "pactl set-sink-volume $sink -- -5%; killall -USR1 i3status"
+bindsym XF86AudioLowerVolume exec "pactl set-sink-volume $sink -5%; killall -USR1 i3status"
 bindsym XF86AudioMute exec "pactl set-sink-mute $sink toggle; killall -USR1 i3status"
 
 <?php if (gethostname() === "felis"): ?>
