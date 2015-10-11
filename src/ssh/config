@@ -10,6 +10,10 @@ Host kalinka terrarium janeczka
 	Hostname %h.maxmati.pl
 	ForwardAgent yes
 
+Host matlab
+	Hostname matlab.tobiasz.maxmati.pl
+	ForwardX11 yes
+
 Host *.maxmati.pl
 	ForwardAgent yes
 
