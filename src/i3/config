@@ -231,6 +231,7 @@ exec --no-startup-id nm-applet
 exec --no-startup-id pidgin
 exec --no-startup-id redshift  -l 50.07:19.92
 exec --no-startup-id xautolock -time 5 -locker "i3lock -i ~/.i3/cat.png"
+exec --no-startup-id workrave
 
 set $Locker i3lock -i ~/.i3/cat.png && sleep 1
 

@@ -3,7 +3,7 @@ if status --is-interactive
 end
 
 
-set PATH $PATH ~/bin ~/.gem/ruby/2.0.0/bin/
+set PATH $PATH ~/bin ~/.gem/ruby/2.0.0/bin/ ~/.local/bin
 alias grep="grep --color=auto"
 set GREP_OPTIONS
 
