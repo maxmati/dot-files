@@ -237,11 +237,12 @@ exec --no-startup-id workrave
 
 set $Locker i3lock -i ~/.i3/cat.png && sleep 1
 
-set $mode_system System (l) lock, (e) logout, (s) suspend, (r) reboot, (Shift+s) shutdown
+set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
     bindsym l exec --no-startup-id $Locker, mode "default"
     bindsym e exec --no-startup-id i3-msg exit, mode "default"
     bindsym s exec --no-startup-id $Locker && user-suspend, mode "default"
+    bindsym h exec --no-startup-id $Locker && user-hibernate, mode "default"
     bindsym r exec --no-startup-id sudo reboot, mode "default"
     bindsym Shift+s exec --no-startup-id sudo poweroff, mode "default"  
 
