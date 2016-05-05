@@ -1,7 +1,11 @@
+<?php if (gethostname() === "felis"): ?>
+mkdir -m 700 -p /tmp/maxmati
+mkdir -m 700 -p /tmp/maxmati/downloads
+<?php endif; ?>
+
 if status --is-interactive
 	keychain --eval --quiet -Q id_rsa | source
 end
-
 
 set PATH $PATH ~/bin ~/.gem/ruby/2.0.0/bin/ ~/.local/bin
 alias grep="grep --color=auto"
