@@ -112,27 +112,30 @@ set $ws28 "18:VIII"
 set $ws29 "19:IX"
 set $ws210 "20:X"
 
-workspace $ws11 output HDMI-0
-workspace $ws12 output HDMI-0
-workspace $ws13 output HDMI-0
-workspace $ws14 output HDMI-0
-workspace $ws15 output HDMI-0
-workspace $ws16 output HDMI-0
-workspace $ws17 output HDMI-0
-workspace $ws18 output HDMI-0
-workspace $ws19 output HDMI-0
-workspace $ws110 output HDMI-0
+set $main DVI-0
+set $alt DisplayPort-0
 
-workspace $ws21 output DVI-0
-workspace $ws22 output DVI-0
-workspace $ws23 output DVI-0
-workspace $ws24 output DVI-0
-workspace $ws25 output DVI-0
-workspace $ws26 output DVI-0
-workspace $ws27 output DVI-0
-workspace $ws28 output DVI-0
-workspace $ws29 output DVI-0
-workspace $ws210 output DVI-0
+workspace $ws11 output $main
+workspace $ws12 output $main
+workspace $ws13 output $main
+workspace $ws14 output $main
+workspace $ws15 output $main
+workspace $ws16 output $main
+workspace $ws17 output $main
+workspace $ws18 output $main
+workspace $ws19 output $main
+workspace $ws110 output $main
+
+workspace $ws21 output $alt
+workspace $ws22 output $alt
+workspace $ws23 output $alt
+workspace $ws24 output $alt
+workspace $ws25 output $alt
+workspace $ws26 output $alt
+workspace $ws27 output $alt
+workspace $ws28 output $alt
+workspace $ws29 output $alt
+workspace $ws210 output $alt
 
 bindsym $mod+F1 workspace $ws21
 bindsym $mod+F2 workspace $ws22
@@ -222,7 +225,7 @@ bar {
         status_command i3status
 	strip_workspace_numbers yes
 <?php if (gethostname() === "leopardus"): ?>
-		tray_output DisplayPort-0
+		tray_output $alt
 <?php endif ?>
 }
 
