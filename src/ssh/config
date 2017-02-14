@@ -1,7 +1,7 @@
 Host charon borg
 	HostName %h.kis.agh.edu.pl
 	ForwardX11 yes
-	User matenowo
+	User nowomate
 
 Host student
 	Hostname student.agh.edu.pl
@@ -22,7 +22,7 @@ Host matlab
 	Hostname matlab.tobiasz.maxmati.pl
 	ForwardX11 yes
 
-Host *.maxmati.pl
+Host *.maxmati.pl *.memleak.pl
 	ForwardAgent yes
 
 

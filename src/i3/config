@@ -219,11 +219,7 @@ bindsym $mod+Alt+0 [title="Buddy List"] scratchpad show
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
-<?php if (gethostname() === "felis"): ?>
-	status_command status-auto-suspend
-<?php else: ?>
         status_command i3status
-<?php endif ?>
 	strip_workspace_numbers yes
 <?php if (gethostname() === "leopardus"): ?>
 		tray_output DisplayPort-0
@@ -236,19 +232,20 @@ exec --no-startup-id nm-applet
 
 exec --no-startup-id pidgin
 exec --no-startup-id redshift  -l 50.07:19.92
-exec --no-startup-id xautolock -time 5 -locker "i3lock -i ~/.i3/cat.png"
 exec --no-startup-id workrave
 
-set $Locker i3lock -i ~/.i3/cat.png && sleep 1
+set $Locker import -window root /tmp/bg.png && convert -scale 30% -scale 334% /tmp/bg.png /tmp/bg.png && i3lock -i /tmp/bg.png && sleep 1 && rm /tmp/bg.png
+
+exec --no-startup-id xautolock -time 5 -locker "$Locker"
 
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
-    bindsym l exec --no-startup-id $Locker, mode "default"
-    bindsym e exec --no-startup-id i3-msg exit, mode "default"
-    bindsym s exec --no-startup-id $Locker && user-suspend, mode "default"
-    bindsym h exec --no-startup-id $Locker && user-hibernate, mode "default"
-    bindsym r exec --no-startup-id sudo reboot, mode "default"
-    bindsym Shift+s exec --no-startup-id sudo poweroff, mode "default"  
+    bindsym l mode "default", exec --no-startup-id $Locker
+    bindsym e mode "default", exec --no-startup-id i3-msg exit
+    bindsym s mode "default",  exec --no-startup-id $Locker && user-suspend
+    bindsym h mode "default", exec --no-startup-id $Locker && user-hibernate
+    bindsym r mode "default", exec --no-startup-id sudo reboot
+    bindsym Shift+s exec --no-startup-id sudo poweroff  
 
     # back to normal: Enter or Escape
     bindsym Return mode "default"
@@ -269,7 +266,6 @@ bindsym XF86AudioLowerVolume exec "pactl set-sink-volume $sink -5%; killall -USR
 bindsym XF86AudioMute exec "pactl set-sink-mute $sink toggle; killall -USR1 i3status"
 
 <?php if (gethostname() === "felis"): ?>
-bindsym $mod+q exec --no-startup-id switch-auto-suspend
 # Sreen brightness controls
 bindsym XF86MonBrightnessUp exec xbacklight -inc 5 # increase screen brightness
 bindsym XF86MonBrightnessDown exec xbacklight -dec 5 # decrease screen brightness

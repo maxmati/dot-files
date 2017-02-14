@@ -1,10 +1,10 @@
-<?php if (gethostname() === "felis"): ?>
+<?php if (gethostname() === "leopardus"): ?>
 mkdir -m 700 -p /tmp/maxmati
 mkdir -m 700 -p /tmp/maxmati/downloads
 <?php endif; ?>
 
 if status --is-interactive
-	keychain --eval --quiet -Q id_rsa | source
+	keychain --eval --quiet -Q id_ed25519 -Q id_rsa | source
 end
 
 set PATH $PATH ~/bin ~/.gem/ruby/2.0.0/bin/ ~/.local/bin
