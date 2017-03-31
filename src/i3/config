@@ -237,7 +237,7 @@ exec --no-startup-id pidgin
 exec --no-startup-id redshift  -l 50.07:19.92
 exec --no-startup-id workrave
 
-set $Locker scrot /tmp/bg.png && convert -scale 20% -scale 500% /tmp/bg.png /tmp/bg.png && i3lock -i /tmp/bg.png && sleep 1 && rm /tmp/bg.png
+set $Locker scrot -z /tmp/bg.png && convert -scale 20% -scale 500% /tmp/bg.png /tmp/bg.png && i3lock -i /tmp/bg.png && sleep 1 && rm /tmp/bg.png
 
 exec --no-startup-id xautolock -time 5 -locker "$Locker"
 
