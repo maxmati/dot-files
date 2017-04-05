@@ -5,10 +5,11 @@ Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
        , commands = [ Run Battery ["-t", "<acstatus>: <watts>, <left>% / <timeleft>" ]10 
                     , Run Cpu ["-L","3","-H","50","--normal","green","--high","red"] 10
                     , Run Memory ["-t","Mem: <usedratio>%"] 10
-                    , Run Date "%a %b %_d %l:%M" "date" 10
+                    , Run Date "%a %b %_d %H:%M" "date" 10
                     , Run StdinReader
+		    , Run DynNetwork [] 10
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader% }{ %cpu% | %memory%    <fc=#ee9a00>%date%</fc> | %battery%" 
+       , template = "%StdinReader% }{ %dynnetwork% | %cpu% | %memory%    <fc=#ee9a00>%date%</fc> | %battery%" 
        }
