@@ -7,7 +7,7 @@ if status --is-interactive
 	keychain --eval --quiet -Q id_ed25519 -Q id_rsa | source
 end
 
-set PATH $PATH ~/bin ~/.gem/ruby/2.0.0/bin/ ~/.local/bin
+set PATH $PATH ~/bin ~/.gem/ruby/*/bin/ ~/.local/bin
 alias grep="grep --color=auto"
 set GREP_OPTIONS
 

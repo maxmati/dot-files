@@ -4,3 +4,4 @@ i3status.conf ~/.i3status.conf
 config/fish/config.fish ~/.config/fish/config.fish
 xmobarrc ~/.xmobarrc
 xmonad/xmonad.hs ~/.xmonad/xmonad.hs
+stalonetrayrc ~/.stalonetrayrc
