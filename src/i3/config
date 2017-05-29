@@ -231,11 +231,10 @@ bar {
 
 <?php if (gethostname() === "felis"): ?>
 exec --no-startup-id nm-applet
-<?php elseif (gethostname() === "leopardus"): ?>
-setxkbmap -layout pl -option ctrl:nocaps
-xmodmap -e "keycode 66 = Escape"
-xmodmap -e "keycode 9 = Caps_Lock"
 <?php endif ?>
+exec --no-startup-id setxkbmap -layout pl -option ctrl:nocaps
+exec --no-startup-id xmodmap -e "keycode 66 = Escape"
+exec --no-startup-id xmodmap -e "keycode 9 = Caps_Lock"
 
 exec --no-startup-id pidgin
 exec --no-startup-id redshift  -l 50.07:19.92
