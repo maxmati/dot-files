@@ -112,9 +112,23 @@ set $ws28 "18:VIII"
 set $ws29 "19:IX"
 set $ws210 "20:X"
 
-set $main DVI-0
-set $alt DisplayPort-0
+set $ws31 "21:i"
+set $ws32 "22:ii"
+set $ws33 "23:iii"
+set $ws34 "24:iv"
+set $ws35 "25:v"
+set $ws36 "26:vi"
+set $ws37 "27:vii"
+set $ws38 "28:viii"
+set $ws39 "29:ix"
+set $ws310 "30:x"
 
+
+set $main DVI-I-0
+set $alt DisplayPort-0
+set $alt2 DVI-D-1
+
+workspace $ws10 output $main
 workspace $ws11 output $main
 workspace $ws12 output $main
 workspace $ws13 output $main
@@ -137,6 +151,17 @@ workspace $ws28 output $alt
 workspace $ws29 output $alt
 workspace $ws210 output $alt
 
+workspace $ws31 output $alt2
+workspace $ws32 output $alt2
+workspace $ws33 output $alt2
+workspace $ws34 output $alt2
+workspace $ws35 output $alt2
+workspace $ws36 output $alt2
+workspace $ws37 output $alt2
+workspace $ws38 output $alt2
+workspace $ws39 output $alt2
+workspace $ws310 output $alt2
+
 bindsym $mod+F1 workspace $ws21
 bindsym $mod+F2 workspace $ws22
 bindsym $mod+F3 workspace $ws23
@@ -158,6 +183,29 @@ bindsym $mod+Shift+F7 move container to workspace $ws27
 bindsym $mod+Shift+F8 move container to workspace $ws28
 bindsym $mod+Shift+F9 move container to workspace $ws29
 bindsym $mod+Shift+F10 move container to workspace $ws210
+
+bindsym $mod+Control+F1 workspace $ws31
+bindsym $mod+Control+F2 workspace $ws32
+bindsym $mod+Control+F3 workspace $ws33
+bindsym $mod+Control+F4 workspace $ws34
+bindsym $mod+Control+F5 workspace $ws35
+bindsym $mod+Control+F6 workspace $ws36
+bindsym $mod+Control+F7 workspace $ws37
+bindsym $mod+Control+F8 workspace $ws38
+bindsym $mod+Control+F9 workspace $ws39
+bindsym $mod+Control+F10 workspace $ws310
+
+bindsym $mod+Control+Shift+F1 move container to workspace $ws31
+bindsym $mod+Control+Shift+F2 move container to workspace $ws32
+bindsym $mod+Control+Shift+F3 move container to workspace $ws33
+bindsym $mod+Control+Shift+F4 move container to workspace $ws34
+bindsym $mod+Control+Shift+F5 move container to workspace $ws35
+bindsym $mod+Control+Shift+F6 move container to workspace $ws36
+bindsym $mod+Control+Shift+F7 move container to workspace $ws37
+bindsym $mod+Control+Shift+F8 move container to workspace $ws38
+bindsym $mod+Control+Shift+F9 move container to workspace $ws39
+bindsym $mod+Control+Shift+F10 move container to workspace $ws310
+
 <?php endif ?>
 
 
