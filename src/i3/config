@@ -101,6 +101,9 @@ set $ws19 "9:9"
 set $ws110 "10:10"
 
 <?php if (gethostname() === "leopardus"): ?>
+set $ws111 "11:11"
+set $ws112 "12:12:www"
+
 set $ws21 "11:I"
 set $ws22 "12:II"
 set $ws23 "13:III"
@@ -112,55 +115,40 @@ set $ws28 "18:VIII"
 set $ws29 "19:IX"
 set $ws210 "20:X"
 
-set $ws31 "21:i"
-set $ws32 "22:ii"
-set $ws33 "23:iii"
-set $ws34 "24:iv"
-set $ws35 "25:v"
-set $ws36 "26:vi"
-set $ws37 "27:vii"
-set $ws38 "28:viii"
-set $ws39 "29:ix"
-set $ws310 "30:x"
+set $main DVI-1
+set $alt DVI-0
+set $alt2 DisplayPort-0
 
+workspace $ws10 output $alt
+workspace $ws11 output $alt
+workspace $ws12 output $alt
+workspace $ws13 output $alt
+workspace $ws14 output $alt
+workspace $ws15 output $alt
+workspace $ws16 output $alt
+workspace $ws17 output $alt2
+workspace $ws18 output $alt2
+workspace $ws19 output $alt2
+workspace $ws110 output $alt2
+workspace $ws111 output $alt2
+workspace $ws112 output $alt2
 
-set $main DVI-I-0
-set $alt DisplayPort-0
-set $alt2 DVI-D-1
+workspace $ws21 output $main
+workspace $ws22 output $main
+workspace $ws23 output $main
+workspace $ws24 output $main
+workspace $ws25 output $main
+workspace $ws26 output $main
+workspace $ws27 output $main
+workspace $ws28 output $main
+workspace $ws29 output $main
+workspace $ws210 output $main
 
-workspace $ws10 output $main
-workspace $ws11 output $main
-workspace $ws12 output $main
-workspace $ws13 output $main
-workspace $ws14 output $main
-workspace $ws15 output $main
-workspace $ws16 output $main
-workspace $ws17 output $main
-workspace $ws18 output $main
-workspace $ws19 output $main
-workspace $ws110 output $main
+bindsym $mod+minus workspace $ws111
+bindsym $mod+equal workspace $ws112
 
-workspace $ws21 output $alt
-workspace $ws22 output $alt
-workspace $ws23 output $alt
-workspace $ws24 output $alt
-workspace $ws25 output $alt
-workspace $ws26 output $alt
-workspace $ws27 output $alt
-workspace $ws28 output $alt
-workspace $ws29 output $alt
-workspace $ws210 output $alt
-
-workspace $ws31 output $alt2
-workspace $ws32 output $alt2
-workspace $ws33 output $alt2
-workspace $ws34 output $alt2
-workspace $ws35 output $alt2
-workspace $ws36 output $alt2
-workspace $ws37 output $alt2
-workspace $ws38 output $alt2
-workspace $ws39 output $alt2
-workspace $ws310 output $alt2
+bindsym $mod+Shift+minus move container to workspace $ws111
+bindsym $mod+Shift+equal move container to workspace $ws112
 
 bindsym $mod+F1 workspace $ws21
 bindsym $mod+F2 workspace $ws22
@@ -184,27 +172,6 @@ bindsym $mod+Shift+F8 move container to workspace $ws28
 bindsym $mod+Shift+F9 move container to workspace $ws29
 bindsym $mod+Shift+F10 move container to workspace $ws210
 
-bindsym $mod+Control+F1 workspace $ws31
-bindsym $mod+Control+F2 workspace $ws32
-bindsym $mod+Control+F3 workspace $ws33
-bindsym $mod+Control+F4 workspace $ws34
-bindsym $mod+Control+F5 workspace $ws35
-bindsym $mod+Control+F6 workspace $ws36
-bindsym $mod+Control+F7 workspace $ws37
-bindsym $mod+Control+F8 workspace $ws38
-bindsym $mod+Control+F9 workspace $ws39
-bindsym $mod+Control+F10 workspace $ws310
-
-bindsym $mod+Control+Shift+F1 move container to workspace $ws31
-bindsym $mod+Control+Shift+F2 move container to workspace $ws32
-bindsym $mod+Control+Shift+F3 move container to workspace $ws33
-bindsym $mod+Control+Shift+F4 move container to workspace $ws34
-bindsym $mod+Control+Shift+F5 move container to workspace $ws35
-bindsym $mod+Control+Shift+F6 move container to workspace $ws36
-bindsym $mod+Control+Shift+F7 move container to workspace $ws37
-bindsym $mod+Control+Shift+F8 move container to workspace $ws38
-bindsym $mod+Control+Shift+F9 move container to workspace $ws39
-bindsym $mod+Control+Shift+F10 move container to workspace $ws310
 
 <?php endif ?>
 
@@ -262,18 +229,13 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
-bindsym $mod+Shift+minus move scratchpad
-
-bindsym $mod+minus scratchpad show
-
-bindsym $mod+Alt+0 [title="Buddy List"] scratchpad show
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
         status_command i3status
 	strip_workspace_numbers yes
 <?php if (gethostname() === "leopardus"): ?>
-		tray_output $alt
+		tray_output $alt2
 <?php endif ?>
 }
 
@@ -282,9 +244,9 @@ exec --no-startup-id nm-applet
 <?php endif ?>
 exec --no-startup-id setxkbmap -layout pl -option ctrl:nocaps
 exec --no-startup-id xmodmap -e "keycode 66 = Escape"
-exec --no-startup-id xmodmap -e "keycode 9 = Caps_Lock"
+#exec --no-startup-id xmodmap -e "keycode 9 = Caps_Lock"
 
-exec --no-startup-id pidgin
+#exec --no-startup-id pidgin
 exec --no-startup-id redshift  -l 50.07:19.92
 exec --no-startup-id workrave
 
@@ -309,7 +271,7 @@ mode "$mode_system" {
 bindsym $mod+l mode "$mode_system"
 
 <?php if (gethostname() === "leopardus"): ?>
-set $sink 1
+set $sink 0
 <?php elseif (gethostname() === "felis"): ?>
 set $sink 0
 <?php endif ?>

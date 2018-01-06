@@ -25,6 +25,9 @@ Host matlab
 Host *.maxmati.pl *.memleak.pl
 	ForwardAgent yes
 
+Host zmora.kis.agh.edu.pl api.zmora.kis.agh.edu.pl
+	User maxmati
+	ForwardAgent yes
 
 Host *.kis.agh.edu.pl
 	User matenowo
