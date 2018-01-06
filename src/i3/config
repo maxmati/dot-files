@@ -242,21 +242,20 @@ bar {
 <?php if (gethostname() === "felis"): ?>
 exec --no-startup-id nm-applet
 <?php endif ?>
-exec --no-startup-id setxkbmap -layout pl -option ctrl:nocaps
-exec --no-startup-id xmodmap -e "keycode 66 = Escape"
+exec --no-startup-id setxkbmap -layout pl -option ctrl:nocaps && xmodmap -e "keycode 66 = Escape"
 #exec --no-startup-id xmodmap -e "keycode 9 = Caps_Lock"
 
 #exec --no-startup-id pidgin
 exec --no-startup-id redshift  -l 50.07:19.92
 exec --no-startup-id workrave
 
-set $Locker scrot -z /tmp/bg.png && convert -scale 20% -scale 500% /tmp/bg.png /tmp/bg.png && i3lock -i /tmp/bg.png && sleep 1 && rm /tmp/bg.png
+set $Locker scrot -z /tmp/bg.png && convert -scale 20% -scale 500% /tmp/bg.png /tmp/bg.png && i3lock -i /tmp/bg.png -n && sleep 1 && rm /tmp/bg.png
 
 exec --no-startup-id xautolock -time 5 -locker "$Locker"
 
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
-    bindsym l mode "default", exec --no-startup-id $Locker
+    bindsym l mode "default", exec --no-startup-id xautolock -locknow
     bindsym e mode "default", exec --no-startup-id i3-msg exit
     bindsym s mode "default",  exec --no-startup-id $Locker && user-suspend
     bindsym h mode "default", exec --no-startup-id $Locker && user-hibernate
@@ -270,11 +269,7 @@ mode "$mode_system" {
 
 bindsym $mod+l mode "$mode_system"
 
-<?php if (gethostname() === "leopardus"): ?>
 set $sink 0
-<?php elseif (gethostname() === "felis"): ?>
-set $sink 0
-<?php endif ?>
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec "pactl set-sink-volume $sink +5%; killall -USR1 i3status"
