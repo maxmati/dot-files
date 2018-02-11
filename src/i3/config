@@ -241,6 +241,8 @@ bar {
 
 <?php if (gethostname() === "felis"): ?>
 exec --no-startup-id nm-applet
+<?php elseif (gethostname() === "leopardus"): ?>
+exec --no-startup-id feh --bg-center ~/.i3/bg_pernament.png
 <?php endif ?>
 exec --no-startup-id setxkbmap -layout pl -option ctrl:nocaps && xmodmap -e "keycode 66 = Escape"
 #exec --no-startup-id xmodmap -e "keycode 9 = Caps_Lock"
@@ -270,6 +272,11 @@ mode "$mode_system" {
 bindsym $mod+l mode "$mode_system"
 
 set $sink 0
+
+<?php if (gethostname() === "leopardus"): ?>
+bindsym XF86Launch5 exec --no-startup-id "xrandr --output DVI-1 --mode 1920x1080 --above  DVI-0"
+bindsym XF86Launch6 exec --no-startup-id "xrandr --output DVI-1 --off"
+<?php endif ?>
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec "pactl set-sink-volume $sink +5%; killall -USR1 i3status"

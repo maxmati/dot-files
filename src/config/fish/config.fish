@@ -5,6 +5,8 @@ mkdir -m 700 -p /tmp/maxmati/downloads
 
 if status --is-interactive
 	keychain --eval --quiet -Q id_ed25519 -Q id_rsa | source
+else
+	keychain --eval --quiet --noask -Q id_ed25519 -Q id_rsa | source
 end
 
 set PATH $PATH ~/bin ~/.gem/ruby/2.4.0/bin/ ~/.local/bin
