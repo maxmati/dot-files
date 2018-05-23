@@ -1,3 +1,7 @@
+Host virt
+	HostName 10.133.37.8
+	User student
+
 Host charon borg
 	HostName %h.kis.agh.edu.pl
 	ForwardX11 yes
@@ -30,6 +34,6 @@ Host zmora.kis.agh.edu.pl api.zmora.kis.agh.edu.pl
 	ForwardAgent yes
 
 Host *.kis.agh.edu.pl
-	User matenowo
+	User nowomate
 Host *
 	User maxmati
