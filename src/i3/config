@@ -116,8 +116,8 @@ set $ws29 "19:IX"
 set $ws210 "20:X"
 
 set $main DVI-1
-set $alt DVI-0
-set $alt2 DisplayPort-0
+set $alt DisplayPort-0
+set $alt2 DVI-0
 
 workspace $ws10 output $alt
 workspace $ws11 output $alt
