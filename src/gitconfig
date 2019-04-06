@@ -1,0 +1,21 @@
+[user]
+	name = Mateusz Nowotyński
+	email = maxmati4@gmail.com
+	signingkey = 3CD334253E9C65146C651CC477BE70393BB5143B
+[diff]
+	indentHeuristic = true
+	renames = copies
+	algorithm = patience
+[rebase]
+	autostash = true
+	autosquash = true
+[pull]
+	rebase = true
+[branch]
+	autosetuprebase = always
+[color]
+	ui = auto
+[format]
+	signoff = true
+[commit]
+	gpgsign = true
