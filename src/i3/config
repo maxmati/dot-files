@@ -115,9 +115,9 @@ set $ws28 "18:VIII"
 set $ws29 "19:IX"
 set $ws210 "20:X"
 
-set $main DVI-1
-set $alt DisplayPort-0
-set $alt2 DVI-0
+set $main HDMI-A-1
+set $alt DisplayPort-1
+set $alt2 DVI-D-0
 
 workspace $ws10 output $alt
 workspace $ws11 output $alt
@@ -274,8 +274,8 @@ bindsym $mod+l mode "$mode_system"
 set $sink 0
 
 <?php if (gethostname() === "leopardus"): ?>
-bindsym XF86Launch5 exec --no-startup-id "xrandr --output DVI-1 --mode 1920x1080 --above  DVI-0"
-bindsym XF86Launch6 exec --no-startup-id "xrandr --output DVI-1 --off"
+bindsym XF86Launch5 exec --no-startup-id "xrandr --output HDMI-A-1 --mode 1920x1080 --above DisplayPort-1"
+bindsym XF86Launch6 exec --no-startup-id "xrandr --output HDMI-A-1 --off"
 <?php endif ?>
 
 # Pulse Audio controls

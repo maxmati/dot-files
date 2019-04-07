@@ -4,12 +4,12 @@ mkdir -m 700 -p /tmp/maxmati/downloads
 <?php endif; ?>
 
 if status --is-interactive
-	keychain --eval --quiet -Q id_ed25519 -Q id_rsa | source
+	keychain --eval --quiet -Q id_ed25519 | source
 else
-	keychain --eval --quiet --noask -Q id_ed25519 -Q id_rsa | source
+	keychain --eval --quiet --noask -Q id_ed25519  | source
 end
 
-set PATH $PATH ~/bin ~/.gem/ruby/2.4.0/bin/ ~/.local/bin
+set PATH ~/.gem/ruby/2.4.0/bin/ ~/.local/bin $PATH
 alias grep="grep --color=auto"
 set GREP_OPTIONS
 
