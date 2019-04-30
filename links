@@ -7,3 +7,4 @@ xmobarrc ~/.xmobarrc
 xmonad/xmonad.hs ~/.xmonad/xmonad.hs
 stalonetrayrc ~/.stalonetrayrc
 gitconfig ~/.gitconfig
+gitignore_global ~/.gitignore_global 

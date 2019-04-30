@@ -1,3 +1,5 @@
+[core]
+excludesfile = ~/.gitignore_global
 [user]
 	name = Mateusz Nowotyński
 	email = maxmati4@gmail.com
