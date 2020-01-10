@@ -29,7 +29,7 @@ font pango:DejaVu Sans Mono 8
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec xfce4-terminal
+bindsym $mod+Return exec kitty
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -274,8 +274,9 @@ bindsym $mod+l mode "$mode_system"
 set $sink 0
 
 <?php if (gethostname() === "leopardus"): ?>
-bindsym XF86Launch5 exec --no-startup-id "xrandr --output HDMI-A-1 --mode 1920x1080 --above DisplayPort-1"
-bindsym XF86Launch6 exec --no-startup-id "xrandr --output HDMI-A-1 --off"
+bindsym XF86Launch5 exec --no-startup-id "xrandr --output HDMI-A-1 --mode 1920x1080 --above DisplayPort-1 --output DisplayPort-1 --mode 1920x1080 --rotate left --output DVI-D-0 --mode 1920x1080 --right-of DisplayPort-1 --rotate left"
+bindsym XF86Launch6 exec --no-startup-id "xrandr --output HDMI-A-1 --off --output DisplayPort-1 --mode 1920x1080 --rotate left --output DVI-D-0 --mode 1920x1080 --right-of DisplayPort-1 --rotate left"
+bindsym XF86Launch7 exec --no-startup-id "xrandr --output HDMI-A-1 --mode 1920x1080 --output DisplayPort-1 --off --output DVI-D-0 --off"
 <?php endif ?>
 
 # Pulse Audio controls
