@@ -39,14 +39,11 @@ bindsym $mod+Shift+q kill
 # There also is the (new) i3-dmenu-desktop which only displays applications
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
-bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+#bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+bindsym $mod+d exec --no-startup-id j4-dmenu-desktop
+#bindsym $mod+d exec --no-startup-id bemenu-run | xargs swaymsg exec --
 
 
-<?php if (gethostname() === "felis"): ?>
-# move workspace to monitor
-bindsym $mod+Mod1+Left move workspace to output left
-bindsym $mod+Mod1+Right move workspace to output right
-<?php endif ?>
 
 # change focuse:
 bindsym $mod+Left focus left
@@ -100,7 +97,6 @@ set $ws18 "8:8"
 set $ws19 "9:9"
 set $ws110 "10:10"
 
-<?php if (gethostname() === "leopardus"): ?>
 set $ws111 "11:11"
 set $ws112 "12:12:www"
 
@@ -115,9 +111,9 @@ set $ws28 "18:VIII"
 set $ws29 "19:IX"
 set $ws210 "20:X"
 
-set $main HDMI-A-1
-set $alt DisplayPort-1
-set $alt2 DVI-D-0
+set $main DP-1
+set $alt HDMI-A-1
+set $alt2 DP-2
 
 workspace $ws10 output $alt
 workspace $ws11 output $alt
@@ -173,11 +169,10 @@ bindsym $mod+Shift+F9 move container to workspace $ws29
 bindsym $mod+Shift+F10 move container to workspace $ws210
 
 
-<?php endif ?>
 
 
 # switch to workspace
-bind $mod+49 workspace $ws10
+bindcode $mod+49 workspace $ws10
 bindsym $mod+1 workspace $ws11
 bindsym $mod+2 workspace $ws12
 bindsym $mod+3 workspace $ws13
@@ -190,7 +185,7 @@ bindsym $mod+9 workspace $ws19
 bindsym $mod+0 workspace $ws110
 
 # move focused container to workspace
-bind $mod+Shift+49 move container to workspace $ws10
+bindcode $mod+Shift+49 move container to workspace $ws10
 bindsym $mod+Shift+1 move container to workspace $ws11
 bindsym $mod+Shift+2 move container to workspace $ws12
 bindsym $mod+Shift+3 move container to workspace $ws13
@@ -232,32 +227,28 @@ bindsym $mod+r mode "resize"
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
-        status_command i3status
-	strip_workspace_numbers yes
-<?php if (gethostname() === "leopardus"): ?>
-		tray_output $alt2
-<?php endif ?>
+        swaybar_command waybar
+		strip_workspace_numbers yes
+		tray_output $main
 }
 
-<?php if (gethostname() === "felis"): ?>
-exec --no-startup-id nm-applet
-<?php elseif (gethostname() === "leopardus"): ?>
-exec --no-startup-id feh --bg-center ~/.i3/bg_pernament.png
-<?php endif ?>
-exec --no-startup-id setxkbmap -layout pl -option ctrl:nocaps && xmodmap -e "keycode 66 = Escape"
+#exec --no-startup-id feh --bg-center ~/.i3/bg_pernament.png
+#exec --no-startup-id setxkbmap -layout pl -option ctrl:nocaps && xmodmap -e "keycode 66 = Escape"
 #exec --no-startup-id xmodmap -e "keycode 9 = Caps_Lock"
 
 #exec --no-startup-id pidgin
-exec --no-startup-id redshift  -l 50.07:19.92
-exec --no-startup-id workrave
+#exec --no-startup-id redshift  -l 50.07:19.92
+#exec --no-startup-id workrave
 
-set $Locker scrot -z /tmp/bg.png && convert -scale 20% -scale 500% /tmp/bg.png /tmp/bg.png && i3lock -i /tmp/bg.png -n && sleep 1 && rm /tmp/bg.png
+#set $Locker scrot -z /tmp/bg.png && convert -scale 20% -scale 500% /tmp/bg.png /tmp/bg.png && i3lock -i /tmp/bg.png -n && sleep 1 && rm /tmp/bg.png
+set $Locker swaylock --ignore-empty-password --show-failed-attempts --color 1e1e1e
 
-exec --no-startup-id xautolock -time 5 -locker "$Locker"
+exec swayidle -w timeout 900 'swaymsg "output * power off"' resume 'swaymsg "output * power on"'
+#exec --no-startup-id xautolock -time 5 -locker "$Locker"
 
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
-    bindsym l mode "default", exec --no-startup-id xautolock -locknow
+    bindsym l exec swaylock --ignore-empty-password --show-failed-attempts --color 1e1e1e
     bindsym e mode "default", exec --no-startup-id i3-msg exit
     bindsym s mode "default",  exec --no-startup-id $Locker && user-suspend
     bindsym h mode "default", exec --no-startup-id $Locker && user-hibernate
@@ -269,23 +260,57 @@ mode "$mode_system" {
     bindsym Escape mode "default"
 }
 
-bindsym $mod+l mode "$mode_system"
+#bindsym $mod+l mode "$mode_system"
+bindsym $mod+l exec $locker
 
 set $sink 0
 
-<?php if (gethostname() === "leopardus"): ?>
 bindsym XF86Launch5 exec --no-startup-id "xrandr --output HDMI-A-1 --mode 1920x1080 --above DisplayPort-1 --output DisplayPort-1 --mode 1920x1080 --rotate left --output DVI-D-0 --mode 1920x1080 --right-of DisplayPort-1 --rotate left"
 bindsym XF86Launch6 exec --no-startup-id "xrandr --output HDMI-A-1 --off --output DisplayPort-1 --mode 1920x1080 --rotate left --output DVI-D-0 --mode 1920x1080 --right-of DisplayPort-1 --rotate left"
 bindsym XF86Launch7 exec --no-startup-id "xrandr --output HDMI-A-1 --mode 1920x1080 --output DisplayPort-1 --off --output DVI-D-0 --off"
-<?php endif ?>
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec "pactl set-sink-volume $sink +5%; killall -USR1 i3status"
 bindsym XF86AudioLowerVolume exec "pactl set-sink-volume $sink -5%; killall -USR1 i3status"
 bindsym XF86AudioMute exec "pactl set-sink-mute $sink toggle; killall -USR1 i3status"
 
-<?php if (gethostname() === "felis"): ?>
-# Sreen brightness controls
-bindsym XF86MonBrightnessUp exec xbacklight -inc 5 # increase screen brightness
-bindsym XF86MonBrightnessDown exec xbacklight -dec 5 # decrease screen brightness
-<?php endif ?>
+output DP-1 pos 1080 300 res 1920x1080
+output HDMI-A-1 pos 0 0 res 1920x1080
+output HDMI-A-1 transform 90
+output DP-2 pos 3000 0 res 1920x1080
+output DP-2 transform 270
+#output DVI-D-1 pos 1080 1080 res 1920x1080
+#output DVI-D-1 transform 270
+
+input type:keyboard {
+        xkb_layout pl
+}
+
+
+#
+# Screen capture
+#
+set $ps1 Print
+set $ps2 Control+Print
+set $ps3 Alt+Print
+set $ps4 Alt+Control+Print
+set $psf $(xdg-user-dir PICTURES)/ps_$(date +"%Y%m%d%H%M%S").png
+
+bindsym $ps1 exec grim - | wl-copy
+bindsym $ps2 exec grim -g "$(slurp)" - | wl-copy
+bindsym $ps3 exec grim $psf
+bindsym $ps4 exec grim -g "$(slurp)" $psf
+
+
+for_window [window_role = "pop-up"] floating enable
+for_window [window_role = "bubble"] floating enable
+for_window [window_role = "dialog"] floating enable
+for_window [window_type = "dialog"] floating enable
+for_window [window_role = "task_dialog"] floating enable
+for_window [window_type = "menu"] floating enable
+for_window [app_id = "floating"] floating enable
+for_window [app_id = "floating_update"] floating enable, resize set width 1000px height 600px
+for_window [class = "(?i)pinentry"] floating enable
+for_window [title = "Administrator privileges required"] floating enable
+
+exec "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"

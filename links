@@ -8,3 +8,5 @@ xmonad/xmonad.hs ~/.xmonad/xmonad.hs
 stalonetrayrc ~/.stalonetrayrc
 gitconfig ~/.gitconfig
 gitignore_global ~/.gitignore_global 
+config/kitty/kitty.conf ~/.config/kitty/kitty.conf
+config/sway/config ~/.config/sway/config
