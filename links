@@ -10,3 +10,4 @@ gitconfig ~/.gitconfig
 gitignore_global ~/.gitignore_global 
 config/kitty/kitty.conf ~/.config/kitty/kitty.conf
 config/sway/config ~/.config/sway/config
+config/waybar/config ~/.config/waybar/config

@@ -1,0 +1,91 @@
+{
+	"height": 24,
+    "layer": "top",
+	"position": "bottom",
+    "modules-left": ["sway/workspaces", "sway/mode"],
+//    "modules-center": ["sway/window"],
+    "modules-right": ["disk#zfs", "disk#root","disk#home","cpu","memory","temperature#cpu","temperature#gpu","network", "pulseaudio", "idle_inhibitor", "tray", "clock"],
+	"sway/workspaces": {
+		"format": "{name}",
+		"enable-bar-scroll": true
+	},
+	"idle_inhibitor": {
+	    "format": "{icon}",
+		"format-icons": {
+	        "activated": "",
+			"deactivated": ""
+		}
+	},
+	"disk#zfs": {
+		"path": "/zfs/backup",
+		"format": "/zfs: {percentage_free}%"
+	},
+	"disk#root": {
+		"path": "/root",
+		"format": "/root: {percentage_free}%"
+	},
+	"disk#home": {
+		"path": "/home",
+		"format": "/home: {percentage_free}%"
+	},
+	"tray": {
+		"spacing": 10
+	},
+    "sway/window": {
+        "max-length": 50
+    },
+    "battery": {
+        "format": "{capacity}% {icon}",
+        "format-icons": ["", "", "", "", ""]
+    },
+    "clock": {
+        "format-alt": "{:%a, %d. %b  %H:%M}"
+    },
+    "cpu": {
+        "format": "{usage}% ",
+        "tooltip": false
+    },
+    "memory": {
+        "format": "{}% "
+    },
+    "temperature#cpu": {
+        "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+        "critical-threshold": 80,
+        "format": "CPU: {temperatureC}°C {icon}",
+        "format-icons": ["", "", ""]
+    },
+    "temperature#gpu": {
+        "hwmon-path": "/sys/class/hwmon/hwmon1/temp1_input",
+        "critical-threshold": 80,
+        "format": "GPU: {temperatureC}°C {icon}",
+        "format-icons": ["", "", ""]
+    },
+	"pulseaudio": {
+        // "scroll-step": 1, // %, can be a float
+        "format": "{volume}% {icon} {format_source}",
+        "format-bluetooth": "{volume}% {icon} {format_source}",
+        "format-bluetooth-muted": " {icon} {format_source}",
+        "format-muted": " {format_source}",
+        "format-source": "{volume}% ",
+        "format-source-muted": "",
+        "format-icons": {
+            "headphone": "",
+            "hands-free": "",
+            "headset": "",
+            "phone": "",
+            "portable": "",
+            "car": "",
+            "default": ["", "", ""]
+        },
+        "on-click": "pavucontrol"
+    },
+	 "network": {
+        "interface": "enp5s0", // (Optional) To force the use of this interface
+        "format-wifi": "{essid} ({signalStrength}%) ",
+        "format-ethernet": "{ipaddr}/{cidr} ",
+        "tooltip-format": "{ifname} via {gwaddr} ",
+        "format-linked": "{ifname} (No IP) ",
+        "format-disconnected": "Disconnected ⚠",
+        "format-alt": "{ifname}: {ipaddr}/{cidr}"
+    },
+}
