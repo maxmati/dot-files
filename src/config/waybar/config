@@ -1,10 +1,25 @@
 {
-	"height": 24,
+	"height": 36,
     "layer": "top",
 	"position": "bottom",
     "modules-left": ["sway/workspaces", "sway/mode"],
 //    "modules-center": ["sway/window"],
-    "modules-right": ["disk#zfs", "disk#root","disk#home","cpu","memory","temperature#cpu","temperature#gpu","network", "pulseaudio", "idle_inhibitor", "tray", "clock"],
+    "modules-right": [
+    	"disk#zfs", 
+	"disk#root",
+	"disk#home","cpu",
+	"memory",
+	"temperature#cpu",
+	"temperature#gpu",
+	"network",
+	"pulseaudio",
+	<?php if (gethostname() === "felis"): ?>
+	"battery",
+	<?php endif ?>
+	"idle_inhibitor",
+	"tray", 
+	"clock"
+	],
 	"sway/workspaces": {
 		"format": "{name}",
 		"enable-bar-scroll": true
@@ -49,13 +64,21 @@
         "format": "{}% "
     },
     "temperature#cpu": {
+	<?php if (gethostname() === "felis"): ?>
+        "hwmon-path": "/sys/class/hwmon/hwmon8/temp1_input",
+	<?php else: ?>
         "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
+	<?php endif ?>
         "critical-threshold": 80,
         "format": "CPU: {temperatureC}°C {icon}",
         "format-icons": ["", "", ""]
     },
     "temperature#gpu": {
+	<?php if (gethostname() === "felis"): ?>
         "hwmon-path": "/sys/class/hwmon/hwmon1/temp1_input",
+	<?php else: ?>
+        "hwmon-path": "/sys/class/hwmon/hwmon9/temp1_input",
+	<?php endif ?>
         "critical-threshold": 80,
         "format": "GPU: {temperatureC}°C {icon}",
         "format-icons": ["", "", ""]
@@ -80,7 +103,11 @@
         "on-click": "pavucontrol"
     },
 	 "network": {
-        "interface": "enp5s0", // (Optional) To force the use of this interface
+	 <?php if (gethostname() === "felis"): ?>
+        "interface": "wlan0", 
+	 <?php else: ?>
+        "interface": "enp5s0", 
+	<?php endif ?>
         "format-wifi": "{essid} ({signalStrength}%) ",
         "format-ethernet": "{ipaddr}/{cidr} ",
         "tooltip-format": "{ifname} via {gwaddr} ",

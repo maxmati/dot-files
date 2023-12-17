@@ -100,6 +100,8 @@ set $ws110 "10:10"
 set $ws111 "11:11"
 set $ws112 "12:12:www"
 
+<?php if (gethostname() === "leopardus"): ?>
+
 set $ws21 "11:I"
 set $ws22 "12:II"
 set $ws23 "13:III"
@@ -140,11 +142,7 @@ workspace $ws28 output $main
 workspace $ws29 output $main
 workspace $ws210 output $main
 
-bindsym $mod+minus workspace $ws111
-bindsym $mod+equal workspace $ws112
 
-bindsym $mod+Shift+minus move container to workspace $ws111
-bindsym $mod+Shift+equal move container to workspace $ws112
 
 bindsym $mod+F1 workspace $ws21
 bindsym $mod+F2 workspace $ws22
@@ -169,7 +167,10 @@ bindsym $mod+Shift+F9 move container to workspace $ws29
 bindsym $mod+Shift+F10 move container to workspace $ws210
 
 
+<?php endif ?>
 
+bindsym $mod+minus workspace $ws111
+bindsym $mod+equal workspace $ws112
 
 # switch to workspace
 bindcode $mod+49 workspace $ws10
@@ -184,6 +185,8 @@ bindsym $mod+8 workspace $ws18
 bindsym $mod+9 workspace $ws19
 bindsym $mod+0 workspace $ws110
 
+bindsym $mod+Shift+minus move container to workspace $ws111
+bindsym $mod+Shift+equal move container to workspace $ws112
 # move focused container to workspace
 bindcode $mod+Shift+49 move container to workspace $ws10
 bindsym $mod+Shift+1 move container to workspace $ws11
@@ -240,6 +243,9 @@ bar {
 #exec --no-startup-id redshift  -l 50.07:19.92
 #exec --no-startup-id workrave
 
+<?php if (gethostname() === "felis"): ?>
+exec nm-applet --indicator
+<?php endif ?>
 #set $Locker scrot -z /tmp/bg.png && convert -scale 20% -scale 500% /tmp/bg.png /tmp/bg.png && i3lock -i /tmp/bg.png -n && sleep 1 && rm /tmp/bg.png
 set $Locker swaylock --ignore-empty-password --show-failed-attempts --color 1e1e1e
 
@@ -265,14 +271,18 @@ bindsym $mod+l exec $locker
 
 set $sink 0
 
-bindsym XF86Launch5 exec --no-startup-id "xrandr --output HDMI-A-1 --mode 1920x1080 --above DisplayPort-1 --output DisplayPort-1 --mode 1920x1080 --rotate left --output DVI-D-0 --mode 1920x1080 --right-of DisplayPort-1 --rotate left"
-bindsym XF86Launch6 exec --no-startup-id "xrandr --output HDMI-A-1 --off --output DisplayPort-1 --mode 1920x1080 --rotate left --output DVI-D-0 --mode 1920x1080 --right-of DisplayPort-1 --rotate left"
-bindsym XF86Launch7 exec --no-startup-id "xrandr --output HDMI-A-1 --mode 1920x1080 --output DisplayPort-1 --off --output DVI-D-0 --off"
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec "pactl set-sink-volume $sink +5%; killall -USR1 i3status"
 bindsym XF86AudioLowerVolume exec "pactl set-sink-volume $sink -5%; killall -USR1 i3status"
 bindsym XF86AudioMute exec "pactl set-sink-mute $sink toggle; killall -USR1 i3status"
+
+
+
+<?php if (gethostname() === "felis"): ?>
+output eDP-1 scale 1
+<?php endif ?>
+<?php if (gethostname() === "leopardus"): ?>
 
 output DP-1 pos 1080 300 res 1920x1080
 output HDMI-A-1 pos 0 0 res 1920x1080
@@ -281,7 +291,7 @@ output DP-2 pos 3000 0 res 1920x1080
 output DP-2 transform 270
 #output DVI-D-1 pos 1080 1080 res 1920x1080
 #output DVI-D-1 transform 270
-
+<?php endif ?>
 input type:keyboard {
         xkb_layout pl
 }

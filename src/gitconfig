@@ -21,3 +21,5 @@ excludesfile = ~/.gitignore_global
 	signoff = true
 [commit]
 	gpgsign = true
+[url "git@github.com:certifaction"]
+        insteadOf = https://github.com/certifaction
