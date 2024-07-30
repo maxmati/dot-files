@@ -9,7 +9,7 @@ else
 	keychain --eval --quiet --noask -Q id_ed25519  | source
 end
 
-set PATH ~/.gem/ruby/2.4.0/bin/ ~/.local/bin $PATH
+set PATH ~/.cargo/bin ~/.gem/ruby/2.4.0/bin/ ~/.local/bin $PATH
 alias grep="grep --color=auto"
 set GREP_OPTIONS
 
