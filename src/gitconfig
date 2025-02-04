@@ -22,4 +22,6 @@ excludesfile = ~/.gitignore_global
 [commit]
 	gpgsign = true
 [url "git@github.com:certifaction"]
-        insteadOf = https://github.com/certifaction
+	insteadOf = https://github.com/certifaction
+[url "git@github.com:eprescription-ch"]
+	insteadOf = https://github.com/eprescription-ch

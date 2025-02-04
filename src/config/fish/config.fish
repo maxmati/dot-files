@@ -14,12 +14,12 @@ alias grep="grep --color=auto"
 set GREP_OPTIONS
 
 set NPM_PACKAGES "$HOME/.npm-packages"
-set PATH $PATH $NPM_PACKAGES/bin "/usr/local/bin"
+set PATH $PATH $NPM_PACKAGES/bin "/usr/local/bin" "$HOME/go/bin"
 #set MANPATH "$NPM_PACKAGES/share/man:$(manpath)"
 set NODE_PATH "$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
 
 # Fish git prompt
-set __fish_git_prompt_showdirtystate 'no'
+set __fish_git_prompt_showdirtystate 'yes'
 set __fish_git_prompt_showstashstate 'yes'
 set __fish_git_prompt_showuntrackedfiles 'yes'
 set __fish_git_prompt_showupstream 'yes'
