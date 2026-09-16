@@ -250,6 +250,8 @@ exec nm-applet --indicator
 #set $Locker scrot -z /tmp/bg.png && convert -scale 20% -scale 500% /tmp/bg.png /tmp/bg.png && i3lock -i /tmp/bg.png -n && sleep 1 && rm /tmp/bg.png
 set $Locker swaylock --ignore-empty-password --show-failed-attempts --color 1e1e1e
 
+exec mako
+
 exec swayidle -w timeout 900 'swaymsg "output * power off"' resume 'swaymsg "output * power on"'
 #exec --no-startup-id xautolock -time 5 -locker "$Locker"
 

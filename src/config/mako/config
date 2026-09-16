@@ -1,0 +1,4 @@
+default-timeout=3000
+<?php if (gethostname() === "leopardus"): ?>
+output=DP-1
+<?php endif ?>
