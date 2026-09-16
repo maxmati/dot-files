@@ -1,4 +1,9 @@
+[
+// Main screen: workspaces plus the full set of stats.
 {
+	<?php if (gethostname() === "leopardus"): ?>
+	"output": "DP-1",
+	<?php endif ?>
 	"height": 36,
     "layer": "top",
 	"position": "bottom",
@@ -15,6 +20,9 @@
 	"pulseaudio",
 	<?php if (gethostname() === "felis"): ?>
 	"battery",
+	<?php elseif (gethostname() === "leopardus"): ?>
+	"upower#headset",
+	"upower#mouse",
 	<?php endif ?>
 	"idle_inhibitor",
 	"tray", 
@@ -33,15 +41,18 @@
 	},
 	"disk#zfs": {
 		"path": "/zfs/backup",
-		"format": "/zfs: {percentage_free}%"
+		"format": "/zfs: {percentage_free}%",
+		"tooltip-format": "{used} out of {total} used ({percentage_used}%), {free} free"
 	},
 	"disk#root": {
 		"path": "/root",
-		"format": "/root: {percentage_free}%"
+		"format": "/root: {percentage_free}%",
+		"tooltip-format": "{used} out of {total} used ({percentage_used}%), {free} free"
 	},
 	"disk#home": {
 		"path": "/home",
-		"format": "/home: {percentage_free}%"
+		"format": "/home: {percentage_free}%",
+		"tooltip-format": "{used} out of {total} used ({percentage_used}%), {free} free"
 	},
 	"tray": {
 		"spacing": 10
@@ -52,6 +63,36 @@
     "battery": {
         "format": "{capacity}% {icon}",
         "format-icons": ["", "", "", "", ""]
+    },
+    // Peripheral batteries, both matched on model (see `upower --dump`)
+    // rather than native-path, because the device paths move: the mouse's
+    // hidpp_battery_N index shifts between reconnects, and the headset's path
+    // changed outright when its battery went from a userspace daemon to a
+    // kernel driver.
+    //
+    // show-icon is off for both: it draws an icon-theme image that does not
+    // match the flat glyphs the rest of the bar uses. Without min-length the
+    // label gets ellipsized to "..." on a full bar.
+    "upower#headset": {
+        "model": "Jabra Evolve3 75",
+        "format": "{percentage} ",
+        "format-alt": "{percentage} {time} ",
+        "show-icon": false,
+        "min-length": 8,
+        "hide-if-empty": true,
+        "tooltip-spacing": 20
+    },
+    // The MX Ergo only reports a coarse battery-level (low/normal/high/full),
+    // so this percentage steps between a few fixed values instead of counting
+    // down; upower itself flags it "should be ignored".
+    "upower#mouse": {
+        "model": "Logitech MX Ergo",
+        "format": "{percentage} ",
+        "format-alt": "{percentage} {time} ",
+        "show-icon": false,
+        "min-length": 8,
+        "hide-if-empty": true,
+        "tooltip-spacing": 20
     },
     "clock": {
         "format-alt": "{:%a, %d. %b  %H:%M}"
@@ -106,7 +147,7 @@
 	 <?php if (gethostname() === "felis"): ?>
         "interface": "wlan0", 
 	 <?php else: ?>
-        "interface": "enp5s0", 
+        "interface": "br0",
 	<?php endif ?>
         "format-wifi": "{essid} ({signalStrength}%) ",
         "format-ethernet": "{ipaddr}/{cidr} ",
@@ -116,3 +157,26 @@
         "format-alt": "{ifname}: {ipaddr}/{cidr}"
     },
 }
+<?php if (gethostname() === "leopardus"): ?>
+,
+// Side screens: workspaces, tray and clock only.
+{
+	"output": ["HDMI-A-1", "DP-2"],
+	"height": 36,
+	"layer": "top",
+	"position": "bottom",
+	"modules-left": ["sway/workspaces", "sway/mode"],
+	"modules-right": ["tray", "clock"],
+	"sway/workspaces": {
+		"format": "{name}",
+		"enable-bar-scroll": true
+	},
+	"tray": {
+		"spacing": 10
+	},
+	"clock": {
+		"format-alt": "{:%a, %d. %b  %H:%M}"
+	}
+}
+<?php endif ?>
+]

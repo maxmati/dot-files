@@ -1,0 +1,35 @@
+/*
+ * Import waybar's shipped stylesheet so this file only has to override the
+ * font; every colour still comes from the system one.
+ *
+ * That stylesheet asks for the Font Awesome 4 family name "FontAwesome", which
+ * does not exist here (the installed fonts are "Font Awesome 6 Free"). The
+ * request therefore fell through to DejaVu Sans, and each icon was resolved
+ * per-glyph against whatever font happened to own that codepoint: Quivira
+ * supplies letters-in-circles for the battery range, so icons rendered as
+ * garbage. Naming a text font first and the Solid face (the one that actually
+ * carries the icons) as a fallback keeps labels in Roboto and draws the icons.
+ *
+ * Aliasing "FontAwesome" in fontconfig instead does not work: it makes Font
+ * Awesome the primary text font, which drops colons and slashes from labels.
+ *
+ * Still broken, and not fixable by font settings: the thermometer and ethernet
+ * glyphs in the temperature and network modules (U+F76B, U+F769, U+F796) are
+ * Font Awesome 5 Pro codepoints, present in none of the installed fonts.
+ */
+@import url("/etc/xdg/waybar/style.css");
+
+* {
+    font-family: Roboto, Helvetica, Arial, "Font Awesome 6 Free Solid", sans-serif;
+}
+
+/*
+ * The shipped stylesheet has no #upower rule, so the module stayed transparent
+ * and the bar's own 3px border-bottom showed through along its bottom edge,
+ * while every neighbouring module paints over it. This is the bar background
+ * (rgba(43, 48, 59, 0.5)) as an opaque colour, so the block keeps the shade it
+ * had but covers the full height.
+ */
+#upower {
+    background-color: #15181d;
+}

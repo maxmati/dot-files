@@ -40,7 +40,8 @@ bindsym $mod+Shift+q kill
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
 #bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
-bindsym $mod+d exec --no-startup-id j4-dmenu-desktop
+#bindsym $mod+d exec --no-startup-id j4-dmenu-desktop
+bindsym $mod+d exec --no-startup-id fuzzel
 #bindsym $mod+d exec --no-startup-id bemenu-run | xargs swaymsg exec --
 
 
@@ -289,6 +290,7 @@ output HDMI-A-1 pos 0 0 res 1920x1080
 output HDMI-A-1 transform 90
 output DP-2 pos 3000 0 res 1920x1080
 output DP-2 transform 270
+output HDMI-A-2 mode 3840x2160@60.000Hz
 #output DVI-D-1 pos 1080 1080 res 1920x1080
 #output DVI-D-1 transform 270
 <?php endif ?>
