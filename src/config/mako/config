@@ -1,4 +1,10 @@
-default-timeout=3000
+default-timeout=10000
+anchor=top-center
+width=450
+height=150
+font=monospace 12
+padding=10
+on-notify=exec ffplay -nodisp -autoexit -loglevel quiet /usr/share/sounds/freedesktop/stereo/message.oga
 <?php if (gethostname() === "leopardus"): ?>
 output=DP-1
 <?php endif ?>
