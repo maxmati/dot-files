@@ -13,6 +13,8 @@ excludesfile = ~/.gitignore_global
 	autosquash = true
 [pull]
 	rebase = true
+[push]
+	autoSetupRemote = true
 [branch]
 	autosetuprebase = always
 [color]

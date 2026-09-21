@@ -239,6 +239,7 @@ bar {
 #exec --no-startup-id feh --bg-center ~/.i3/bg_pernament.png
 #exec --no-startup-id setxkbmap -layout pl -option ctrl:nocaps && xmodmap -e "keycode 66 = Escape"
 #exec --no-startup-id xmodmap -e "keycode 9 = Caps_Lock"
+exec --no-startup-id dbus-update-activation-environment --systemd --all
 
 #exec --no-startup-id pidgin
 #exec --no-startup-id redshift  -l 50.07:19.92
@@ -252,12 +253,12 @@ set $Locker swaylock --ignore-empty-password --show-failed-attempts --color 1e1e
 
 exec mako
 
-exec swayidle -w timeout 900 'swaymsg "output * power off"' resume 'swaymsg "output * power on"'
+exec swayidle -w timeout 360 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' timeout 300 '$Locker' before-sleep '$Locker'
 #exec --no-startup-id xautolock -time 5 -locker "$Locker"
 
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
 mode "$mode_system" {
-    bindsym l exec swaylock --ignore-empty-password --show-failed-attempts --color 1e1e1e
+    bindsym l mode "default", exec $Locker
     bindsym e mode "default", exec --no-startup-id i3-msg exit
     bindsym s mode "default",  exec --no-startup-id $Locker && user-suspend
     bindsym h mode "default", exec --no-startup-id $Locker && user-hibernate
@@ -269,8 +270,8 @@ mode "$mode_system" {
     bindsym Escape mode "default"
 }
 
-#bindsym $mod+l mode "$mode_system"
-bindsym $mod+l exec $locker
+bindsym $mod+l mode "$mode_system"
+#bindsym $mod+l exec $locker
 
 set $sink 0
 

@@ -13,6 +13,8 @@ set PATH ~/.cargo/bin ~/.gem/ruby/2.4.0/bin/ ~/.local/bin $PATH
 alias grep="grep --color=auto"
 set GREP_OPTIONS
 
+set GOPRIVATE github.com/certifaction
+
 set NPM_PACKAGES "$HOME/.npm-packages"
 set PATH $PATH $NPM_PACKAGES/bin "/usr/local/bin" "$HOME/go/bin"
 #set MANPATH "$NPM_PACKAGES/share/man:$(manpath)"
