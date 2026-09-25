@@ -34,6 +34,11 @@ bindsym $mod+Return exec kitty -1
 # kill focused window
 bindsym $mod+Shift+q kill
 
+# notifications: dismiss, dismiss all, toggle snooze
+bindsym $mod+n exec makoctl dismiss
+bindsym $mod+Shift+n exec makoctl dismiss --all
+bindsym $mod+Ctrl+n exec makoctl mode -t do-not-disturb && pkill -RTMIN+8 waybar
+
 # start dmenu (a program launcher)
 # bindsym $mod+d exec dmenu_run
 # There also is the (new) i3-dmenu-desktop which only displays applications

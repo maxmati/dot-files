@@ -1,10 +1,20 @@
 default-timeout=10000
+# Apps like Slack/Chrome ask for "never expire"; force default-timeout on all.
+ignore-timeout=1
 anchor=top-center
 width=450
 height=150
 font=monospace 12
 padding=10
+# Right-click closes without invoking the notification's action.
+on-button-right=dismiss
+on-button-middle=dismiss-all
 on-notify=exec ffplay -nodisp -autoexit -loglevel quiet /usr/share/sounds/freedesktop/stereo/message.oga
 <?php if (gethostname() === "leopardus"): ?>
 output=DP-1
 <?php endif ?>
+
+# Snooze, toggled from waybar's custom/dnd module or $mod+Ctrl+n.
+[mode=do-not-disturb]
+invisible=1
+on-notify=none

@@ -24,6 +24,7 @@
 	"upower#headset",
 	"upower#mouse",
 	<?php endif ?>
+	"custom/dnd",
 	"idle_inhibitor",
 	"tray", 
 	"clock"
@@ -38,6 +39,14 @@
 	        "activated": "",
 			"deactivated": ""
 		}
+	},
+	// Notification snooze: toggles mako's do-not-disturb mode. Plain-text
+	// output: line 1 text, line 2 tooltip, line 3 CSS class.
+	"custom/dnd": {
+		"exec": "if makoctl mode | grep -qx do-not-disturb; then printf '%s\\n%s\\n%s\\n' '' 'Notifications snoozed' activated; else printf '%s\\n%s\\n%s\\n' '' 'Notifications on' deactivated; fi",
+		"interval": 10,
+		"signal": 8,
+		"on-click": "makoctl mode -t do-not-disturb; pkill -RTMIN+8 waybar"
 	},
 	"disk#zfs": {
 		"path": "/zfs/backup",

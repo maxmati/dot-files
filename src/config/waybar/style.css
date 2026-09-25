@@ -33,3 +33,18 @@
 #upower {
     background-color: #15181d;
 }
+
+/*
+ * Notification snooze (custom/dnd). Custom modules get no styling from the
+ * shipped stylesheet, so mirror #idle_inhibitor: dark when notifications are
+ * on, light when snoozed.
+ */
+#custom-dnd {
+    padding: 0 10px;
+    background-color: #2d3436;
+}
+
+#custom-dnd.activated {
+    background-color: #ecf0f1;
+    color: #2d3436;
+}
