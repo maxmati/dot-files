@@ -18,3 +18,8 @@ output=DP-1
 [mode=do-not-disturb]
 invisible=1
 on-notify=none
+
+# Element-only snooze, toggled from waybar's custom/dnd-element module.
+[app-name=Element mode=dnd-element]
+invisible=1
+on-notify=none

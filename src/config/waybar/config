@@ -24,6 +24,7 @@
 	"upower#headset",
 	"upower#mouse",
 	<?php endif ?>
+	"custom/dnd-element",
 	"custom/dnd",
 	"idle_inhibitor",
 	"tray", 
@@ -47,6 +48,13 @@
 		"interval": 10,
 		"signal": 8,
 		"on-click": "makoctl mode -t do-not-disturb; pkill -RTMIN+8 waybar"
+	},
+	// Same, but only for Element (mako mode dnd-element).
+	"custom/dnd-element": {
+		"exec": "if makoctl mode | grep -qx dnd-element; then printf '%s\\n%s\\n%s\\n' '' 'Element notifications snoozed' activated; else printf '%s\\n%s\\n%s\\n' '' 'Element notifications on' deactivated; fi",
+		"interval": 10,
+		"signal": 8,
+		"on-click": "makoctl mode -t dnd-element; pkill -RTMIN+8 waybar"
 	},
 	"disk#zfs": {
 		"path": "/zfs/backup",
