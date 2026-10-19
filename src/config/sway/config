@@ -254,11 +254,19 @@ exec --no-startup-id dbus-update-activation-environment --systemd --all
 exec nm-applet --indicator
 <?php endif ?>
 #set $Locker scrot -z /tmp/bg.png && convert -scale 20% -scale 500% /tmp/bg.png /tmp/bg.png && i3lock -i /tmp/bg.png -n && sleep 1 && rm /tmp/bg.png
-set $Locker swaylock --ignore-empty-password --show-failed-attempts --color 1e1e1e
+# -f: return once locked, so swayidle -w and "$Locker && user-suspend" don't block until unlock
+set $Locker swaylock -f
 
 exec mako
 
-exec swayidle -w timeout 360 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' timeout 300 '$Locker' before-sleep '$Locker'
+<?php if (gethostname() === "leopardus"): ?>
+set $idle_off 360
+set $idle_lock 900
+<?php else: ?>
+set $idle_off 300
+set $idle_lock 360
+<?php endif ?>
+exec swayidle -w timeout $idle_off 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' timeout $idle_lock '$Locker' before-sleep '$Locker'
 #exec --no-startup-id xautolock -time 5 -locker "$Locker"
 
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
