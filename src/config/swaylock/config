@@ -1,0 +1,37 @@
+ignore-empty-password
+show-failed-attempts
+color=1e1e1e
+scaling=fill
+
+# NASA launch photos, cropped to each output's exact resolution (see assets/swaylock/SOURCES)
+image=<?= dirname(__DIR__, 3) ?>/assets/swaylock/hdmi-a-2.jpg
+<?php if (gethostname() === "leopardus"): ?>
+image=HDMI-A-1:<?= dirname(__DIR__, 3) ?>/assets/swaylock/hdmi-a-1.jpg
+image=DP-1:<?= dirname(__DIR__, 3) ?>/assets/swaylock/dp-1.jpg
+image=DP-2:<?= dirname(__DIR__, 3) ?>/assets/swaylock/dp-2.jpg
+image=HDMI-A-2:<?= dirname(__DIR__, 3) ?>/assets/swaylock/hdmi-a-2.jpg
+<?php endif ?>
+
+indicator-radius=110
+indicator-thickness=12
+font=DejaVu Sans
+
+inside-color=0b1020b0
+ring-color=ff8c1aff
+key-hl-color=4fd8ffff
+bs-hl-color=ff4f4fff
+line-color=00000000
+separator-color=00000000
+text-color=f0f0f0ff
+
+inside-ver-color=0b1020b0
+ring-ver-color=4fd8ffff
+text-ver-color=f0f0f0ff
+
+inside-wrong-color=3a0b0bc0
+ring-wrong-color=ff4f4fff
+text-wrong-color=ffb0b0ff
+
+inside-clear-color=0b1020b0
+ring-clear-color=ffd24fff
+text-clear-color=f0f0f0ff

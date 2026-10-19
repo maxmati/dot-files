@@ -1,0 +1,12 @@
+NASA imagery, public domain (https://www.nasa.gov/nasa-brand-center/images-and-media/).
+Originals from images.nasa.gov, cropped with:
+  magick <orig> -auto-orient -resize WxH^ -gravity center -extent WxH -strip -quality 90 <out>
+
+hdmi-a-1.jpg  1080x1920  KSC-20221116-PH-ILW01_0008  Artemis I on the pad before liftoff  NASA/Isaac Watson
+  https://images.nasa.gov/details/KSC-20221116-PH-ILW01_0008
+dp-1.jpg      1920x1080  s38-s-027                   STS-38 Atlantis night liftoff        NASA/JSC
+  https://images.nasa.gov/details/s38-s-027
+dp-2.jpg      1080x1920  KSC-20250226-PH-KWC01_0001  Falcon 9 IM-2 ascent streak          NASA/Kenneth W. Culberson
+  https://images.nasa.gov/details/KSC-20250226-PH-KWC01_0001
+hdmi-a-2.jpg  3840x2160  Artemis II at the pad sunset 01282026_3  Artemis II at Pad 39B, sunset  NASA/Sam Lott
+  https://images.nasa.gov/details/Artemis%20II%20at%20the%20pad%20sunset%2001282026_3

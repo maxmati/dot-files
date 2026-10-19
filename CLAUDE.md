@@ -45,7 +45,8 @@ Used in `src/config/sway/config`, `src/config/waybar/config`, `src/config/kitty/
 
 ## Layout
 
-- **Wayland (current):** `src/config/sway/config`, `src/config/waybar/config`, `src/config/kitty/kitty.conf`
+- **Wayland (current):** `src/config/sway/config`, `src/config/waybar/config`, `src/config/kitty/kitty.conf`, `src/config/swaylock/config`
+- **Binary assets:** `assets/` (outside `src/` so `php` never touches the bytes; templates reference it via `<?= dirname(__DIR__, 3) ?>/assets/...`). `assets/swaylock/` holds per-output lock-screen photos sized to each output's exact resolution.
 - **X11 (legacy, still tracked & linked):** `src/i3/config`, `src/i3status.conf`, `src/xmonad/xmonad.hs` (Haskell), `src/xmobarrc`, `src/stalonetrayrc`
 - **Shell / misc:** `src/config/fish/config.fish` (keychain, PATH, `fish_prompt`), `src/config/pulse/daemon.conf`, `src/ssh/config`
 - **Git:** `src/gitconfig`, `src/gitignore_global`

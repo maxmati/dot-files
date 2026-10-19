@@ -13,3 +13,4 @@ config/sway/config ~/.config/sway/config
 config/waybar/config ~/.config/waybar/config
 config/waybar/style.css ~/.config/waybar/style.css
 config/mako/config ~/.config/mako/config
+config/swaylock/config ~/.config/swaylock/config
