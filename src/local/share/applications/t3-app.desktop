@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=T3 Code
+Comment=T3 Code desktop app
+Exec=<?= getenv("HOME") ?>/.local/bin/t3-app %U
+Icon=<?= getenv("HOME") ?>/.local/share/icons/com.t3tools.T3Code.desktop.png
+Terminal=false
+Categories=Development;
+StartupWMClass=com.t3tools.T3Code

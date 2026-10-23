@@ -11,3 +11,4 @@ config/waybar/config ~/.config/waybar/config
 config/waybar/style.css ~/.config/waybar/style.css
 config/mako/config ~/.config/mako/config
 config/swaylock/config ~/.config/swaylock/config
+local/share/applications/t3-app.desktop ~/.local/share/applications/t3-app.desktop
