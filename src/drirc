@@ -1,0 +1,13 @@
+<!-- Per-user Mesa driconf overrides. -->
+<driconf>
+    <device>
+        <!--
+            KiCad on Wayland (Sway): with vsync on, eglSwapBuffers blocks forever
+            on a hidden window (no frame callbacks), freezing the visible editor
+            too since eeschema/pcbnew share one process. Equivalent to vblank_mode=0.
+        -->
+        <application name="KiCad" executable_regexp="^(kicad|pcbnew|eeschema|gerbview|pl_editor|footprint_editor|symbol_editor)$">
+            <option name="vblank_mode" value="0" />
+        </application>
+    </device>
+</driconf>
