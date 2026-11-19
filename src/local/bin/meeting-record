@@ -1,8 +1,11 @@
 #!/bin/bash
 # Record a call as two tracks: the microphone and whatever the speakers play.
 #
-#   meeting-record toggle   start, or stop and hand the recording over
-#   meeting-record status   one line of JSON for waybar
+#   meeting-record toggle       start, or stop and hand the recording over
+#   meeting-record note-start   start a quick voice note (microphone only)
+#   meeting-record note-stop    end it and hand it over; bound to a key's
+#                               press and release, so holding the key records
+#   meeting-record status       one line of JSON for waybar
 #
 # A finished recording goes to the voice-diary bot on leopardus, which
 # transcribes it and asks in Matrix what to record. Recordings made elsewhere
@@ -16,6 +19,8 @@ RUN="${XDG_RUNTIME_DIR:-/tmp}/meeting-record"
 INBOX_HOST="${MEETING_RECORD_HOST:-leopardus}"
 INBOX="${MEETING_RECORD_INBOX:-.local/state/voice-diary/meetings/inbox}"
 RETRY_SECONDS=300
+NOTE_MIN_MS=600   # a shorter press is taken for a slip of the finger
+NOTE_MAX_SECONDS=300 # stop by itself if the key release never arrives
 mkdir -p "$DATA/outbox" "$RUN"
 
 recording() {
@@ -41,8 +46,55 @@ start() {
 
 # Close a recording: write its metadata and mark it ready to hand over.
 finish() { # dir, end time
-	printf '{"started": "%s", "ended": "%s", "host": "%s"}\n' "$(cat "$1/started")" "$2" "$(hostname)" > "$1/meta.json"
+	local kind=meeting
+	[ -e "$1/out.flac" ] || kind=note
+	printf '{"kind": "%s", "started": "%s", "ended": "%s", "host": "%s"}\n' \
+		"$kind" "$(cat "$1/started")" "$2" "$(hostname)" > "$1/meta.json"
 	touch "$1/ready"
+}
+
+noting() {
+	[ -f "$RUN/note-id" ] && kill -0 "$(cat "$RUN/note.pid" 2>/dev/null)" 2>/dev/null
+}
+
+note_start() {
+	local id dir
+	noting && return 0
+	id="$(date +%Y-%m-%dT%H%M%S)-note"
+	dir="$DATA/outbox/$id"
+	mkdir -p "$dir"
+	date --iso-8601=seconds > "$dir/started"
+	date +%s%3N > "$RUN/note-t0"
+	capture @DEFAULT_SOURCE@ "$dir/mic.flac" "$RUN/note.pid"
+	echo "$id" > "$RUN/note-id"
+	(sleep "$NOTE_MAX_SECONDS"; rm -f "$RUN/note-dog"; bash "$0" note-stop) >/dev/null 2>&1 &
+	echo $! > "$RUN/note-dog"
+}
+
+note_stop() {
+	local dir pid held dog nap
+	noting || return 0
+	dir="$DATA/outbox/$(cat "$RUN/note-id")"
+	pid=$(cat "$RUN/note.pid")
+	held=$(($(date +%s%3N) - $(cat "$RUN/note-t0")))
+	if [ -f "$RUN/note-dog" ]; then # the key was released in time; the safety timer is not needed
+		dog=$(cat "$RUN/note-dog")
+		nap=$(pgrep -P "$dog")
+		# The timer shell first: killing its sleep alone would let it run on and stop a later note.
+		kill "$dog" $nap 2>/dev/null
+	fi
+	rm -f "$RUN/note-id" "$RUN/note.pid" "$RUN/note-t0" "$RUN/note-dog"
+	sleep 0.3 # the last word is still on its way through the audio buffers
+	kill -INT "$pid" 2>/dev/null
+	for _ in $(seq 30); do
+		kill -0 "$pid" 2>/dev/null || break
+		sleep 0.1
+	done
+	if [ "$held" -lt "$NOTE_MIN_MS" ]; then
+		rm -rf "$dir"
+	else
+		finish "$dir" "$(date --iso-8601=seconds)"
+	fi
 }
 
 stop() {
@@ -64,6 +116,7 @@ adopt_orphans() {
 	local dir
 	for dir in "$DATA"/outbox/*/; do
 		[ -f "$dir/started" ] && [ ! -f "$dir/ready" ] || continue
+		[ "$(basename "$dir")" = "$(cat "$RUN/note-id" 2>/dev/null)" ] && continue
 		finish "${dir%/}" "$(date --iso-8601=seconds -r "$dir/mic.flac" 2>/dev/null || date --iso-8601=seconds)"
 	done
 }
@@ -80,7 +133,7 @@ deliver() {
 		# "ready" goes last, so the bot never picks up a half-copied recording.
 		if [ "$(hostname)" = "$INBOX_HOST" ]; then
 			mkdir -p "$HOME/$INBOX/$id" &&
-				cp "$dir"/mic.* "$dir"/out.* "$dir/meta.json" "$HOME/$INBOX/$id/" &&
+				cp "$dir"/*.flac "$dir/meta.json" "$HOME/$INBOX/$id/" &&
 				touch "$HOME/$INBOX/$id/ready" && rm -rf "$dir"
 		else
 			rsync -a --exclude ready -e "ssh -o BatchMode=yes -o ConnectTimeout=5" "$dir/" "$INBOX_HOST:$INBOX/$id/" &&
@@ -95,6 +148,10 @@ waiting() {
 
 status() {
 	local since elapsed count
+	if noting; then
+		printf '{"text": "\uf130", "class": "recording", "tooltip": "Recording a voice note. Release the key to send it."}\n'
+		return
+	fi
 	if recording; then
 		since=$(date +%s -d "$(cat "$DATA/outbox/$(cat "$RUN/id")/started")")
 		elapsed=$(($(date +%s) - since))
@@ -125,10 +182,19 @@ toggle)
 	fi
 	pkill -RTMIN+9 waybar
 	;;
+note-start)
+	note_start
+	pkill -RTMIN+9 waybar
+	;;
+note-stop)
+	note_stop
+	pkill -RTMIN+9 waybar
+	(deliver >/dev/null 2>&1 &)
+	;;
 status) status ;;
 deliver) deliver ;;
 *)
-	echo "usage: meeting-record toggle|status|deliver" >&2
+	echo "usage: meeting-record toggle|note-start|note-stop|status|deliver" >&2
 	exit 2
 	;;
 esac

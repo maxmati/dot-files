@@ -318,6 +318,17 @@ input type:keyboard {
 #
 # Screen capture
 #
+# Quick voice note for the diary: hold the key to record, release to send.
+# --no-repeat keeps key repeat from restarting it; the script ignores a press
+# shorter than 0.6 s. See ~/.local/bin/meeting-record.
+<?php if (gethostname() === "felis"): ?>
+set $dictate $mod+z
+<?php else: ?>
+set $dictate Pause
+<?php endif ?>
+bindsym --no-repeat $dictate exec bash ~/.local/bin/meeting-record note-start
+bindsym --release $dictate exec bash ~/.local/bin/meeting-record note-stop
+
 set $ps1 Print
 set $ps2 Control+Print
 set $ps3 Alt+Print
