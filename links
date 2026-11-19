@@ -13,3 +13,4 @@ config/mako/config ~/.config/mako/config
 config/swaylock/config ~/.config/swaylock/config
 local/share/applications/t3-app.desktop ~/.local/share/applications/t3-app.desktop
 drirc ~/.drirc
+local/bin/meeting-record ~/.local/bin/meeting-record

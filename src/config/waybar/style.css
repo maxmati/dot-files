@@ -50,3 +50,23 @@
     background-color: #ecf0f1;
     color: #2d3436;
 }
+
+/*
+ * Meeting recorder (custom/meeting). Dark like the other custom modules while
+ * idle; red while recording, so a forgotten recording is hard to miss; amber
+ * while finished recordings still wait to be handed over.
+ */
+#custom-meeting {
+    padding: 0 10px;
+    background-color: #2d3436;
+}
+
+#custom-meeting.recording {
+    background-color: #eb4d4b;
+    color: #ffffff;
+}
+
+#custom-meeting.waiting {
+    background-color: #f0932b;
+    color: #2d3436;
+}

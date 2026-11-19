@@ -1,0 +1,134 @@
+#!/bin/bash
+# Record a call as two tracks: the microphone and whatever the speakers play.
+#
+#   meeting-record toggle   start, or stop and hand the recording over
+#   meeting-record status   one line of JSON for waybar
+#
+# A finished recording goes to the voice-diary bot on leopardus, which
+# transcribes it and asks in Matrix what to record. Recordings made elsewhere
+# wait in the outbox until leopardus can be reached over ssh.
+#
+# Both tracks follow the default devices, so switching headset mid-call works.
+set -u
+
+DATA="${MEETING_RECORD_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/meeting-record}"
+RUN="${XDG_RUNTIME_DIR:-/tmp}/meeting-record"
+INBOX_HOST="${MEETING_RECORD_HOST:-leopardus}"
+INBOX="${MEETING_RECORD_INBOX:-.local/state/voice-diary/meetings/inbox}"
+RETRY_SECONDS=300
+mkdir -p "$DATA/outbox" "$RUN"
+
+recording() {
+	[ -f "$RUN/id" ] && kill -0 "$(cat "$RUN/mic.pid" 2>/dev/null)" 2>/dev/null
+}
+
+capture() { # device, file, pid file
+	setsid parecord --device="$1" --rate=16000 --channels=1 --file-format=flac --latency-msec=100 \
+		--client-name=meeting-record "$2" >/dev/null 2>&1 &
+	echo $! > "$3"
+}
+
+start() {
+	local id dir
+	id=$(date +%Y-%m-%dT%H%M%S)
+	dir="$DATA/outbox/$id"
+	mkdir -p "$dir"
+	date --iso-8601=seconds > "$dir/started"
+	capture @DEFAULT_SOURCE@ "$dir/mic.flac" "$RUN/mic.pid"
+	capture @DEFAULT_MONITOR@ "$dir/out.flac" "$RUN/out.pid"
+	echo "$id" > "$RUN/id"
+}
+
+# Close a recording: write its metadata and mark it ready to hand over.
+finish() { # dir, end time
+	printf '{"started": "%s", "ended": "%s", "host": "%s"}\n' "$(cat "$1/started")" "$2" "$(hostname)" > "$1/meta.json"
+	touch "$1/ready"
+}
+
+stop() {
+	local dir pid
+	dir="$DATA/outbox/$(cat "$RUN/id")"
+	for pid in "$(cat "$RUN/mic.pid")" "$(cat "$RUN/out.pid")"; do
+		kill -INT "$pid" 2>/dev/null
+	done
+	for _ in $(seq 50); do # give the encoders up to five seconds to flush
+		kill -0 "$(cat "$RUN/mic.pid")" 2>/dev/null || kill -0 "$(cat "$RUN/out.pid")" 2>/dev/null || break
+		sleep 0.1
+	done
+	rm -f "$RUN/id" "$RUN/mic.pid" "$RUN/out.pid"
+	finish "$dir" "$(date --iso-8601=seconds)"
+}
+
+# A recording cut short by a crash or logout never got closed; close it now.
+adopt_orphans() {
+	local dir
+	for dir in "$DATA"/outbox/*/; do
+		[ -f "$dir/started" ] && [ ! -f "$dir/ready" ] || continue
+		finish "${dir%/}" "$(date --iso-8601=seconds -r "$dir/mic.flac" 2>/dev/null || date --iso-8601=seconds)"
+	done
+}
+
+deliver() {
+	local dir id
+	exec 9> "$RUN/deliver.lock"
+	flock -n 9 || return 0
+	date +%s > "$RUN/last-try"
+	for dir in "$DATA"/outbox/*/; do
+		[ -f "$dir/ready" ] || continue
+		dir="${dir%/}"
+		id=$(basename "$dir")
+		# "ready" goes last, so the bot never picks up a half-copied recording.
+		if [ "$(hostname)" = "$INBOX_HOST" ]; then
+			mkdir -p "$HOME/$INBOX/$id" &&
+				cp "$dir"/mic.* "$dir"/out.* "$dir/meta.json" "$HOME/$INBOX/$id/" &&
+				touch "$HOME/$INBOX/$id/ready" && rm -rf "$dir"
+		else
+			rsync -a --exclude ready -e "ssh -o BatchMode=yes -o ConnectTimeout=5" "$dir/" "$INBOX_HOST:$INBOX/$id/" &&
+				ssh -o BatchMode=yes -o ConnectTimeout=5 "$INBOX_HOST" "touch '$INBOX/$id/ready'" && rm -rf "$dir"
+		fi
+	done
+}
+
+waiting() {
+	find "$DATA/outbox" -mindepth 2 -maxdepth 2 -name ready | wc -l
+}
+
+status() {
+	local since elapsed count
+	if recording; then
+		since=$(date +%s -d "$(cat "$DATA/outbox/$(cat "$RUN/id")/started")")
+		elapsed=$(($(date +%s) - since))
+		printf '{"text": " %02d:%02d", "class": "recording", "tooltip": "Recording a meeting. Click to stop."}\n' \
+			$((elapsed / 60)) $((elapsed % 60))
+		return
+	fi
+	adopt_orphans
+	count=$(waiting)
+	if [ "$count" -gt 0 ]; then
+		if [ $(($(date +%s) - $(cat "$RUN/last-try" 2>/dev/null || echo 0))) -ge "$RETRY_SECONDS" ]; then
+			(deliver >/dev/null 2>&1 &)
+		fi
+		printf '{"text": " %d", "class": "waiting", "tooltip": "%d recording(s) waiting to reach %s. Click to record a meeting."}\n' \
+			"$count" "$count" "$INBOX_HOST"
+	else
+		printf '{"text": "", "class": "idle", "tooltip": "Click to record a meeting."}\n'
+	fi
+}
+
+case "${1:-}" in
+toggle)
+	if recording; then
+		stop
+		(deliver >/dev/null 2>&1 &)
+	else
+		start
+	fi
+	pkill -RTMIN+9 waybar
+	;;
+status) status ;;
+deliver) deliver ;;
+*)
+	echo "usage: meeting-record toggle|status|deliver" >&2
+	exit 2
+	;;
+esac

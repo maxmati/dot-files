@@ -24,6 +24,7 @@
 	"upower#headset",
 	"upower#mouse",
 	<?php endif ?>
+	"custom/meeting",
 	"custom/dnd-element",
 	"custom/dnd",
 	"idle_inhibitor",
@@ -40,6 +41,17 @@
 	        "activated": "",
 			"deactivated": ""
 		}
+	},
+	// Meeting recorder: click to start, click again to stop. Records the
+	// microphone and the speaker output as two tracks and hands them to the
+	// voice-diary bot (see ~/.local/bin/meeting-record). The script is run
+	// through bash because sync.sh does not keep the executable bit.
+	"custom/meeting": {
+		"exec": "bash ~/.local/bin/meeting-record status",
+		"return-type": "json",
+		"interval": 5,
+		"signal": 9,
+		"on-click": "bash ~/.local/bin/meeting-record toggle"
 	},
 	// Notification snooze: toggles mako's do-not-disturb mode. Plain-text
 	// output: line 1 text, line 2 tooltip, line 3 CSS class.
