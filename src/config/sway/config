@@ -266,7 +266,11 @@ set $idle_lock 900
 set $idle_off 300
 set $idle_lock 360
 <?php endif ?>
-exec swayidle -w timeout $idle_off 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' timeout $idle_lock '$Locker' before-sleep '$Locker'
+# The idle lock runs in the background ("&"): with the outputs already powered
+# off, swaylock -f never gets its "locked" confirmation, and swayidle -w would
+# wait on it forever and never run the resume command (screens stay black).
+# before-sleep keeps the blocking form so suspend waits for the lock.
+exec swayidle -w timeout $idle_off 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' timeout $idle_lock '$Locker &' before-sleep '$Locker'
 #exec --no-startup-id xautolock -time 5 -locker "$Locker"
 
 set $mode_system System (l) lock, (e) logout, (s) suspend, (h) hibernate, (r) reboot, (Shift+s) shutdown
@@ -318,16 +322,15 @@ input type:keyboard {
 #
 # Screen capture
 #
-# Quick voice note for the diary: hold the key to record, release to send.
-# --no-repeat keeps key repeat from restarting it; the script ignores a press
-# shorter than 0.6 s. See ~/.local/bin/meeting-record.
+# Quick voice note for the diary: press, talk, press again to send.
+# --no-repeat keeps a held key from ending it straight away; a note shorter
+# than 0.6 s is dropped. See ~/.local/bin/meeting-record.
 <?php if (gethostname() === "felis"): ?>
 set $dictate $mod+z
 <?php else: ?>
 set $dictate Pause
 <?php endif ?>
-bindsym --no-repeat $dictate exec bash ~/.local/bin/meeting-record note-start
-bindsym --release $dictate exec bash ~/.local/bin/meeting-record note-stop
+bindsym --no-repeat $dictate exec bash ~/.local/bin/meeting-record note
 
 set $ps1 Print
 set $ps2 Control+Print

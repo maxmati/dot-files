@@ -2,9 +2,10 @@
 # Record a call as two tracks: the microphone and whatever the speakers play.
 #
 #   meeting-record toggle       start, or stop and hand the recording over
-#   meeting-record note-start   start a quick voice note (microphone only)
-#   meeting-record note-stop    end it and hand it over; bound to a key's
-#                               press and release, so holding the key records
+#   meeting-record note         start a quick voice note (microphone only),
+#                               or end it and hand it over; bound to a key,
+#                               so it is press, talk, press
+#   meeting-record note-stop    end a note; used by the safety timer
 #   meeting-record status       one line of JSON for waybar
 #
 # A finished recording goes to the voice-diary bot on leopardus, which
@@ -19,9 +20,14 @@ RUN="${XDG_RUNTIME_DIR:-/tmp}/meeting-record"
 INBOX_HOST="${MEETING_RECORD_HOST:-leopardus}"
 INBOX="${MEETING_RECORD_INBOX:-.local/state/voice-diary/meetings/inbox}"
 RETRY_SECONDS=300
-NOTE_MIN_MS=600   # a shorter press is taken for a slip of the finger
-NOTE_MAX_SECONDS=300 # stop by itself if the key release never arrives
+NOTE_MIN_MS=600   # a shorter note is taken for a slip of the finger
+NOTE_MAX_SECONDS=300 # stop by itself if the second press never comes
 mkdir -p "$DATA/outbox" "$RUN"
+
+# One line per key event, to tell a lost key release from a fault in here.
+log() {
+	echo "$(date --iso-8601=seconds) $*" >> "$DATA/log"
+}
 
 recording() {
 	[ -f "$RUN/id" ] && kill -0 "$(cat "$RUN/mic.pid" 2>/dev/null)" 2>/dev/null
@@ -67,7 +73,7 @@ note_start() {
 	date +%s%3N > "$RUN/note-t0"
 	capture @DEFAULT_SOURCE@ "$dir/mic.flac" "$RUN/note.pid"
 	echo "$id" > "$RUN/note-id"
-	(sleep "$NOTE_MAX_SECONDS"; rm -f "$RUN/note-dog"; bash "$0" note-stop) >/dev/null 2>&1 &
+	(sleep "$NOTE_MAX_SECONDS"; rm -f "$RUN/note-dog"; echo "$(date --iso-8601=seconds) timer: stop" >> "$DATA/log"; bash "$0" note-stop) >/dev/null 2>&1 &
 	echo $! > "$RUN/note-dog"
 }
 
@@ -149,7 +155,7 @@ waiting() {
 status() {
 	local since elapsed count
 	if noting; then
-		printf '{"text": "\uf130", "class": "recording", "tooltip": "Recording a voice note. Release the key to send it."}\n'
+		printf '{"text": "\uf130", "class": "recording", "tooltip": "Recording a voice note. Press the key again to send it."}\n'
 		return
 	fi
 	if recording; then
@@ -182,8 +188,15 @@ toggle)
 	fi
 	pkill -RTMIN+9 waybar
 	;;
-note-start)
-	note_start
+note)
+	if noting; then
+		log "press: stop"
+		note_stop
+		(deliver >/dev/null 2>&1 &)
+	else
+		log "press: start"
+		note_start
+	fi
 	pkill -RTMIN+9 waybar
 	;;
 note-stop)
@@ -194,7 +207,7 @@ note-stop)
 status) status ;;
 deliver) deliver ;;
 *)
-	echo "usage: meeting-record toggle|note-start|note-stop|status|deliver" >&2
+	echo "usage: meeting-record toggle|note|note-stop|status|deliver" >&2
 	exit 2
 	;;
 esac
