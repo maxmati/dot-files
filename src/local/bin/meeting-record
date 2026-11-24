@@ -5,6 +5,9 @@
 #   meeting-record note         start a quick voice note (microphone only),
 #                               or end it and hand it over; bound to a key,
 #                               so it is press, talk, press
+#   meeting-record note quiet   the same, but the note also ends by itself
+#                               once you fall silent (for the headset button,
+#                               which can start a note but not stop it)
 #   meeting-record note-stop    end a note; used by the safety timer
 #   meeting-record status       one line of JSON for waybar
 #
@@ -22,6 +25,8 @@ INBOX="${MEETING_RECORD_INBOX:-.local/state/voice-diary/meetings/inbox}"
 RETRY_SECONDS=300
 NOTE_MIN_MS=600   # a shorter note is taken for a slip of the finger
 NOTE_MAX_SECONDS=300 # stop by itself if the second press never comes
+NOTE_QUIET_SECONDS="${MEETING_RECORD_QUIET:-3}" # end a note after this much silence
+NOTE_WAIT_SECONDS=10 # give up on a note nobody speaks into
 mkdir -p "$DATA/outbox" "$RUN"
 
 # One line per key event, to tell a lost key release from a fault in here.
@@ -59,6 +64,26 @@ finish() { # dir, end time
 	touch "$1/ready"
 }
 
+# Short tones on the default output, so a note can be started and ended
+# without looking: rising = recording, falling = sent, one low = dropped.
+chime() { # start|sent|dropped
+	local f
+	case "$1" in
+	start) set -- 660 990 ;;
+	sent) set -- 990 660 ;;
+	*) set -- 330 ;;
+	esac
+	# One stream for all tones, led by 0.3 s of silence: the headset swallows
+	# the first moment of sound while its output wakes up.
+	local files=()
+	for f in "$@"; do
+		[ -s "$RUN/tone-$f.wav" ] ||
+			sox -q -n -r 48000 -c 1 "$RUN/tone-$f.wav" synth 0.12 sine "$f" fade 0.01 0.12 0.02 pad 0 0.03 vol 0.4
+		files+=("$RUN/tone-$f.wav")
+	done
+	play -q "${files[@]}" pad 0.3 0
+} >/dev/null 2>&1
+
 noting() {
 	[ -f "$RUN/note-id" ] && kill -0 "$(cat "$RUN/note.pid" 2>/dev/null)" 2>/dev/null
 }
@@ -71,11 +96,52 @@ note_start() {
 	mkdir -p "$dir"
 	date --iso-8601=seconds > "$dir/started"
 	date +%s%3N > "$RUN/note-t0"
+	# Beep before the microphone opens: once it records, the Jabra is in call
+	# mode and plays nothing. The beep blocks (about 0.6 s), and the microphone
+	# opens straight after it, so it means "talk now".
+	chime start
 	capture @DEFAULT_SOURCE@ "$dir/mic.flac" "$RUN/note.pid"
 	echo "$id" > "$RUN/note-id"
 	(sleep "$NOTE_MAX_SECONDS"; rm -f "$RUN/note-dog"; echo "$(date --iso-8601=seconds) timer: stop" >> "$DATA/log"; bash "$0" note-stop) >/dev/null 2>&1 &
 	echo $! > "$RUN/note-dog"
+	[ "${1:-}" = quiet ] || return 0
+	# A second, raw stream of the same microphone, only to hear when talking stops.
+	(parec --device=@DEFAULT_SOURCE@ --raw --format=s16le --rate=16000 --channels=1 \
+		--latency-msec=100 --client-name=meeting-record-vad 2>/dev/null |
+		python3 -I -c "$QUIET_PY" "$NOTE_QUIET_SECONDS" "$NOTE_WAIT_SECONDS" 2>> "$DATA/log" &&
+		{ rm -f "$RUN/note-quiet"; log "silence: stop"; bash "$0" note-stop; }) >/dev/null 2>&1 &
+	echo $! > "$RUN/note-quiet"
 }
+
+# Reads 16 kHz mono s16le on stdin; exits 0 once the speaker has been quiet for
+# argv[1] seconds after talking (or never talked within argv[2] seconds), and
+# non-zero when the stream ends first. Speech is anything 12 dB over a noise
+# floor that drops at once and rises 1 dB/s, so it follows a steady background.
+QUIET_PY='
+import array, math, sys, time
+quiet_for, wait_for = float(sys.argv[1]), float(sys.argv[2])
+frame = 1600  # 100 ms
+floor, heard, quiet, t, peak = -55.0, False, 0.0, 0.0, -96.0
+while True:
+    b = sys.stdin.buffer.read(frame * 2)
+    if len(b) < frame * 2:
+        sys.exit(1)
+    a = array.array("h", b)
+    rms = math.sqrt(sum(x * x for x in a) / len(a)) or 1.0
+    db = 20 * math.log10(rms / 32768)
+    t += 0.1
+    if t < 0.5:  # the click of the key
+        continue
+    peak = max(peak, db)
+    if db > max(floor + 12, -50):
+        heard, quiet = True, 0.0
+    else:
+        quiet += 0.1
+    floor = min(db, floor + 0.1)
+    if (heard and quiet >= quiet_for) or (not heard and t >= wait_for):
+        print(time.strftime("%Y-%m-%dT%H:%M:%S%z"), "silence: after %.1fs, peak %.0f dB, floor %.0f dB, speech %s" % (t, peak, floor, heard), file=sys.stderr)
+        sys.exit(0)
+'
 
 note_stop() {
 	local dir pid held dog nap
@@ -89,7 +155,11 @@ note_stop() {
 		# The timer shell first: killing its sleep alone would let it run on and stop a later note.
 		kill "$dog" $nap 2>/dev/null
 	fi
-	rm -f "$RUN/note-id" "$RUN/note.pid" "$RUN/note-t0" "$RUN/note-dog"
+	if [ -f "$RUN/note-quiet" ]; then # the silence watcher and its two processes
+		dog=$(cat "$RUN/note-quiet")
+		kill "$dog" $(pgrep -P "$dog") 2>/dev/null
+	fi
+	rm -f "$RUN/note-id" "$RUN/note.pid" "$RUN/note-t0" "$RUN/note-dog" "$RUN/note-quiet"
 	sleep 0.3 # the last word is still on its way through the audio buffers
 	kill -INT "$pid" 2>/dev/null
 	for _ in $(seq 30); do
@@ -97,8 +167,10 @@ note_stop() {
 		sleep 0.1
 	done
 	if [ "$held" -lt "$NOTE_MIN_MS" ]; then
+		chime dropped &
 		rm -rf "$dir"
 	else
+		chime sent &
 		finish "$dir" "$(date --iso-8601=seconds)"
 	fi
 }
@@ -194,8 +266,8 @@ note)
 		note_stop
 		(deliver >/dev/null 2>&1 &)
 	else
-		log "press: start"
-		note_start
+		log "press: start${2:+ $2}"
+		note_start "${2:-}"
 	fi
 	pkill -RTMIN+9 waybar
 	;;
