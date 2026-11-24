@@ -1,0 +1,117 @@
+#!/bin/bash
+# Certifaction VPN indicator for waybar. The tunnel (tun-cert) lives on krk-2
+# and needs a browser login on every connect.
+#
+#   cert-vpn status   one line of JSON for waybar
+#   cert-vpn click    when the tunnel is down: restart the client on krk-2 so
+#                     it prints a fresh login link (valid 180 s), open the
+#                     link in the browser and wait for the tunnel
+#
+# Run through bash from waybar because sync.sh does not keep the executable bit.
+set -u
+
+HOST="${CERT_VPN_HOST:-krk-2.tobiasz.memleak.pl}"
+UNIT=openvpn-certifaction
+LINK_PREFIX=https://auth.vpn.external.k8s.certifaction.io/
+SESSION_MINUTES=54   # the server ends a session at the first TLS renegotiation
+WARN_MINUTES=45
+SIGNAL=10            # custom/cert-vpn "signal" in the waybar config
+LOCKED=$'\xef\x80\xa3'
+UNLOCKED=$'\xef\x82\x9c'
+
+remote() { # script for bash on krk-2, read from stdin
+	timeout "$1" ssh -o BatchMode=yes -o ConnectTimeout=4 "$HOST" bash -s
+}
+
+# Prints "up <unix time the session started>", "down", or nothing when krk-2
+# cannot be reached.
+state() {
+	remote 10 2>/dev/null <<-EOF
+		if ip link show tun-cert >/dev/null 2>&1; then
+			since=\$(sudo -n journalctl -u $UNIT -q -o short-unix --since -3h \
+				-g 'Initialization Sequence Completed' -n 1 2>/dev/null | cut -d. -f1)
+			echo "up \${since:-0}"
+		else
+			echo down
+		fi
+	EOF
+}
+
+emit() { # text, tooltip, class
+	jq -cn --arg text "$1" --arg tooltip "$2" --arg class "$3" \
+		'{text: $text, tooltip: $tooltip, class: $class}'
+}
+
+status() {
+	local st since age
+	read -r st since < <(state)
+	case "${st:-}" in
+	up)
+		if [ "${since:-0}" -gt 0 ]; then
+			age=$((($(date +%s) - since) / 60))
+			if [ "$age" -ge "$WARN_MINUTES" ]; then
+				emit "$LOCKED VPN" "Certifaction VPN up since $(date -d "@$since" +%H:%M), will drop around $(date -d "@$((since + SESSION_MINUTES * 60))" +%H:%M)" expiring
+			else
+				emit "$LOCKED VPN" "Certifaction VPN up since $(date -d "@$since" +%H:%M), good until about $(date -d "@$((since + SESSION_MINUTES * 60))" +%H:%M)" up
+			fi
+		else
+			emit "$LOCKED VPN" "Certifaction VPN up" up
+		fi
+		;;
+	down) emit "$UNLOCKED VPN" "Certifaction VPN down. Click to log in" down ;;
+	*) emit "$UNLOCKED VPN ?" "Cannot reach $HOST" unknown ;;
+	esac
+}
+
+refresh() {
+	pkill -RTMIN+$SIGNAL waybar
+}
+
+click() {
+	local link
+	# A restart gives a link with the full 180 s left, and resets the
+	# client's growing pause between attempts. Never restart a live tunnel.
+	link=$(remote 40 2>/dev/null <<-EOF
+		if ip link show tun-cert >/dev/null 2>&1; then echo up; exit; fi
+		sudo -n systemctl restart $UNIT || exit 1
+		id=\$(systemctl show -p InvocationID --value $UNIT)
+		for i in \$(seq 60); do
+			link=\$(sudo -n journalctl _SYSTEMD_INVOCATION_ID=\$id -o cat | grep -o "WEB_AUTH::[^']*" | tail -1)
+			[ -n "\$link" ] && break
+			sleep 0.5
+		done
+		echo "\${link#WEB_AUTH::}"
+	EOF
+	)
+	case "$link" in
+	up)
+		refresh
+		return
+		;;
+	"$LINK_PREFIX"*) xdg-open "$link" >/dev/null 2>&1 ;;
+	*)
+		notify-send -u critical "Certifaction VPN" "Could not get a login link from $HOST"
+		return 1
+		;;
+	esac
+	# The link is good for 180 s; show the result as soon as there is one.
+	for _ in $(seq 60); do
+		sleep 3
+		if [ "$(state | cut -d' ' -f1)" = up ]; then
+			refresh
+			notify-send "Certifaction VPN" "Connected"
+			return
+		fi
+	done
+	refresh
+	notify-send -u critical "Certifaction VPN" "Login not completed, still down"
+}
+
+case "${1:-}" in
+status) status ;;
+click) click ;;
+*)
+	echo "usage: cert-vpn status|click" >&2
+	exit 2
+	;;
+esac

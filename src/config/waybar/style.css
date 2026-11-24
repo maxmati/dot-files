@@ -70,3 +70,26 @@
     background-color: #f0932b;
     color: #2d3436;
 }
+
+/*
+ * Certifaction VPN (custom/cert-vpn). Dark while the tunnel is up; amber when
+ * the session is about to end; red while it is down and waits for a login.
+ */
+#custom-cert-vpn {
+    padding: 0 10px;
+    background-color: #2d3436;
+}
+
+#custom-cert-vpn.expiring {
+    background-color: #f0932b;
+    color: #2d3436;
+}
+
+#custom-cert-vpn.down {
+    background-color: #eb4d4b;
+    color: #ffffff;
+}
+
+#custom-cert-vpn.unknown {
+    color: #7f8c8d;
+}

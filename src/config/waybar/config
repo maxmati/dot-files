@@ -24,6 +24,7 @@
 	"upower#headset",
 	"upower#mouse",
 	<?php endif ?>
+	"custom/cert-vpn",
 	"custom/meeting",
 	"custom/dnd-element",
 	"custom/dnd",
@@ -52,6 +53,15 @@
 		"interval": 5,
 		"signal": 9,
 		"on-click": "bash ~/.local/bin/meeting-record toggle"
+	},
+	// Certifaction VPN on krk-2 (see ~/.local/bin/cert-vpn): shows whether the
+	// tunnel is up; a click while it is down opens the browser login.
+	"custom/cert-vpn": {
+		"exec": "bash ~/.local/bin/cert-vpn status",
+		"return-type": "json",
+		"interval": 30,
+		"signal": 10,
+		"on-click": "bash ~/.local/bin/cert-vpn click"
 	},
 	// Notification snooze: toggles mako's do-not-disturb mode. Plain-text
 	// output: line 1 text, line 2 tooltip, line 3 CSS class.
