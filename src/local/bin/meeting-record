@@ -39,8 +39,9 @@ recording() {
 }
 
 capture() { # device, file, pid file
+	# 8>&-: a recorder must not hold the note lock (see the end of this file).
 	setsid parecord --device="$1" --rate=16000 --channels=1 --file-format=flac --latency-msec=100 \
-		--client-name=meeting-record "$2" >/dev/null 2>&1 &
+		--client-name=meeting-record "$2" >/dev/null 2>&1 8>&- &
 	echo $! > "$3"
 }
 
@@ -91,25 +92,28 @@ noting() {
 note_start() {
 	local id dir
 	noting && return 0
+	# A recorder left over from an earlier note keeps the microphone open
+	# unseen (it once ran all day); no note is running, so end any.
+	pkill -INT -f -- '--client-name=meeting-record .*-note/mic\.flac$' && log "killed a stray note recorder"
 	id="$(date +%Y-%m-%dT%H%M%S)-note"
 	dir="$DATA/outbox/$id"
 	mkdir -p "$dir"
 	date --iso-8601=seconds > "$dir/started"
-	date +%s%3N > "$RUN/note-t0"
 	# Beep before the microphone opens: once it records, the Jabra is in call
 	# mode and plays nothing. The beep blocks (about 0.6 s), and the microphone
 	# opens straight after it, so it means "talk now".
 	chime start
 	capture @DEFAULT_SOURCE@ "$dir/mic.flac" "$RUN/note.pid"
+	date +%s%3N > "$RUN/note-t0" # from the open microphone, not the press
 	echo "$id" > "$RUN/note-id"
-	(sleep "$NOTE_MAX_SECONDS"; rm -f "$RUN/note-dog"; echo "$(date --iso-8601=seconds) timer: stop" >> "$DATA/log"; bash "$0" note-stop) >/dev/null 2>&1 &
+	(sleep "$NOTE_MAX_SECONDS"; rm -f "$RUN/note-dog"; echo "$(date --iso-8601=seconds) timer: stop" >> "$DATA/log"; bash "$0" note-stop) >/dev/null 2>&1 8>&- &
 	echo $! > "$RUN/note-dog"
 	[ "${1:-}" = quiet ] || return 0
 	# A second, raw stream of the same microphone, only to hear when talking stops.
 	(parec --device=@DEFAULT_SOURCE@ --raw --format=s16le --rate=16000 --channels=1 \
 		--latency-msec=100 --client-name=meeting-record-vad 2>/dev/null |
 		python3 -I -c "$QUIET_PY" "$NOTE_QUIET_SECONDS" "$NOTE_WAIT_SECONDS" 2>> "$DATA/log" &&
-		{ rm -f "$RUN/note-quiet"; log "silence: stop"; bash "$0" note-stop; }) >/dev/null 2>&1 &
+		{ rm -f "$RUN/note-quiet"; log "silence: stop"; bash "$0" note-stop; }) >/dev/null 2>&1 8>&- &
 	echo $! > "$RUN/note-quiet"
 }
 
@@ -167,10 +171,10 @@ note_stop() {
 		sleep 0.1
 	done
 	if [ "$held" -lt "$NOTE_MIN_MS" ]; then
-		chime dropped &
+		chime dropped 8>&- &
 		rm -rf "$dir"
 	else
-		chime sent &
+		chime sent 8>&- &
 		finish "$dir" "$(date --iso-8601=seconds)"
 	fi
 }
@@ -241,7 +245,7 @@ status() {
 	count=$(waiting)
 	if [ "$count" -gt 0 ]; then
 		if [ $(($(date +%s) - $(cat "$RUN/last-try" 2>/dev/null || echo 0))) -ge "$RETRY_SECONDS" ]; then
-			(deliver >/dev/null 2>&1 &)
+			(deliver >/dev/null 2>&1 8>&- &)
 		fi
 		printf '{"text": " %d", "class": "waiting", "tooltip": "%d recording(s) waiting to reach %s. Click to record a meeting."}\n' \
 			"$count" "$count" "$INBOX_HOST"
@@ -250,21 +254,34 @@ status() {
 	fi
 }
 
+# One key press can reach this script twice at once (the Jabra button fired both
+# Pause bindings): both saw no note running and both started a recorder, and the
+# first was never stopped. So starting and stopping take turns, and a press that
+# comes right after a note started is taken for that same press.
+case "${1:-}" in
+toggle | note | note-stop)
+	exec 8> "$RUN/note.lock"
+	flock -w 10 8 || { log "lock: busy, ${1} skipped"; exit 1; }
+	;;
+esac
+
 case "${1:-}" in
 toggle)
 	if recording; then
 		stop
-		(deliver >/dev/null 2>&1 &)
+		(deliver >/dev/null 2>&1 8>&- &)
 	else
 		start
 	fi
 	pkill -RTMIN+9 waybar
 	;;
 note)
-	if noting; then
+	if noting && [ $(($(date +%s%3N) - $(cat "$RUN/note-t0"))) -lt "$NOTE_MIN_MS" ]; then
+		log "press: ignored, the note started just now${2:+ ($2)}"
+	elif noting; then
 		log "press: stop"
 		note_stop
-		(deliver >/dev/null 2>&1 &)
+		(deliver >/dev/null 2>&1 8>&- &)
 	else
 		log "press: start${2:+ $2}"
 		note_start "${2:-}"
@@ -274,7 +291,7 @@ note)
 note-stop)
 	note_stop
 	pkill -RTMIN+9 waybar
-	(deliver >/dev/null 2>&1 &)
+	(deliver >/dev/null 2>&1 8>&- &)
 	;;
 status) status ;;
 deliver) deliver ;;
