@@ -9,6 +9,7 @@
 #                               once you fall silent (for the headset button,
 #                               which can start a note but not stop it)
 #   meeting-record note-stop    end a note; used by the safety timer
+#   meeting-record note-stop drop   end a note and throw it away
 #   meeting-record status       one line of JSON for waybar
 #
 # A finished recording goes to the voice-diary bot on leopardus, which
@@ -32,6 +33,15 @@ mkdir -p "$DATA/outbox" "$RUN"
 # One line per key event, to tell a lost key release from a fault in here.
 log() {
 	echo "$(date --iso-8601=seconds) $*" >> "$DATA/log"
+}
+
+# What the sound was doing at a press: the output's state, and how many
+# programs play and record. Tells a press nobody made from one somebody did.
+sound() {
+	local sink
+	sink=$(pactl get-default-sink 2>/dev/null)
+	echo "output $(pactl list short sinks 2>/dev/null | awk -v s="$sink" '$2 == s { print tolower($NF) }')," \
+		"$(pactl list short sink-inputs 2>/dev/null | wc -l) playing, $(pactl list short source-outputs 2>/dev/null | wc -l) recording"
 }
 
 recording() {
@@ -108,18 +118,28 @@ note_start() {
 	echo "$id" > "$RUN/note-id"
 	(sleep "$NOTE_MAX_SECONDS"; rm -f "$RUN/note-dog"; echo "$(date --iso-8601=seconds) timer: stop" >> "$DATA/log"; bash "$0" note-stop) >/dev/null 2>&1 8>&- &
 	echo $! > "$RUN/note-dog"
-	[ "${1:-}" = quiet ] || return 0
-	# A second, raw stream of the same microphone, only to hear when talking stops.
+	[ "${1:-}" = quiet ] && note_listen
+	return 0
+}
+
+# End the running note once talking stops: a second, raw stream of the same
+# microphone, only to hear when.
+note_listen() {
+	kill -0 "$(cat "$RUN/note-quiet" 2>/dev/null)" 2>/dev/null && return 0
 	(parec --device=@DEFAULT_SOURCE@ --raw --format=s16le --rate=16000 --channels=1 \
 		--latency-msec=100 --client-name=meeting-record-vad 2>/dev/null |
-		python3 -I -c "$QUIET_PY" "$NOTE_QUIET_SECONDS" "$NOTE_WAIT_SECONDS" 2>> "$DATA/log" &&
-		{ rm -f "$RUN/note-quiet"; log "silence: stop"; bash "$0" note-stop; }) >/dev/null 2>&1 8>&- &
+		python3 -I -c "$QUIET_PY" "$NOTE_QUIET_SECONDS" "$NOTE_WAIT_SECONDS" 2>> "$DATA/log"
+		case $? in
+		0) rm -f "$RUN/note-quiet"; log "silence: stop"; bash "$0" note-stop ;;
+		# Nobody spoke: the headset sends its button by itself now and then.
+		3) rm -f "$RUN/note-quiet"; log "silence: drop"; bash "$0" note-stop drop ;;
+		esac) >/dev/null 2>&1 8>&- &
 	echo $! > "$RUN/note-quiet"
 }
 
 # Reads 16 kHz mono s16le on stdin; exits 0 once the speaker has been quiet for
-# argv[1] seconds after talking (or never talked within argv[2] seconds), and
-# non-zero when the stream ends first. Speech is anything 12 dB over a noise
+# argv[1] seconds after talking, 3 when they never talked within argv[2]
+# seconds, and 1 when the stream ends first. Speech is anything 12 dB over a noise
 # floor that drops at once and rises 1 dB/s, so it follows a steady background.
 QUIET_PY='
 import array, math, sys, time
@@ -144,10 +164,10 @@ while True:
     floor = min(db, floor + 0.1)
     if (heard and quiet >= quiet_for) or (not heard and t >= wait_for):
         print(time.strftime("%Y-%m-%dT%H:%M:%S%z"), "silence: after %.1fs, peak %.0f dB, floor %.0f dB, speech %s" % (t, peak, floor, heard), file=sys.stderr)
-        sys.exit(0)
+        sys.exit(0 if heard else 3)
 '
 
-note_stop() {
+note_stop() { # "drop" throws the note away
 	local dir pid held dog nap
 	noting || return 0
 	dir="$DATA/outbox/$(cat "$RUN/note-id")"
@@ -170,7 +190,7 @@ note_stop() {
 		kill -0 "$pid" 2>/dev/null || break
 		sleep 0.1
 	done
-	if [ "$held" -lt "$NOTE_MIN_MS" ]; then
+	if [ "$held" -lt "$NOTE_MIN_MS" ] || [ "${1:-}" = drop ]; then
 		chime dropped 8>&- &
 		rm -rf "$dir"
 	else
@@ -277,19 +297,23 @@ toggle)
 	;;
 note)
 	if noting && [ $(($(date +%s%3N) - $(cat "$RUN/note-t0"))) -lt "$NOTE_MIN_MS" ]; then
-		log "press: ignored, the note started just now${2:+ ($2)}"
+		log "press: ignored, the note started just now${2:+ ($2${3:+, $3})}"
+		# The headset's press comes twice, once through the keyboard's binding.
+		# When that one came first the note would wait for a second press the
+		# headset cannot send, so the headset's own makes it end on silence.
+		[ "${2:-}" = quiet ] && note_listen
 	elif noting; then
 		log "press: stop"
 		note_stop
 		(deliver >/dev/null 2>&1 8>&- &)
 	else
-		log "press: start${2:+ $2}"
+		log "press: start${2:+ $2}${3:+ ($3)}; $(sound)"
 		note_start "${2:-}"
 	fi
 	pkill -RTMIN+9 waybar
 	;;
 note-stop)
-	note_stop
+	note_stop "${2:-}"
 	pkill -RTMIN+9 waybar
 	(deliver >/dev/null 2>&1 8>&- &)
 	;;

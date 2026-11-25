@@ -326,17 +326,12 @@ input type:keyboard {
 # --no-repeat keeps a held key from ending it straight away; a note shorter
 # than 0.6 s is dropped. See ~/.local/bin/meeting-record.
 <?php if (gethostname() === "felis"): ?>
-set $dictate $mod+z
+bindsym --no-repeat $mod+z exec bash ~/.local/bin/meeting-record note
 <?php else: ?>
-set $dictate Pause
+# Only the keyboard's Pause: the Jabra headset sends Pause too, also by itself,
+# and cannot send the second press that would end the note.
+bindsym --no-repeat --input-device=1118:219:Microsoft_Natural___Ergonomic_Keyboard_4000 Pause exec bash ~/.local/bin/meeting-record note
 <?php endif ?>
-bindsym --no-repeat $dictate exec bash ~/.local/bin/meeting-record note
-# The Jabra headset's main button sends Pause (sometimes Play), but only while
-# the microphone is idle, so it can start a note and not stop it; such a note
-# ends when you fall silent. Pause on the keyboard keeps press, talk, press.
-set $jabra 2830:11856:Jabra_Link_390
-bindsym --no-repeat --input-device=$jabra Pause exec bash ~/.local/bin/meeting-record note quiet
-bindsym --no-repeat --input-device=$jabra XF86AudioPlay exec bash ~/.local/bin/meeting-record note quiet
 
 set $ps1 Print
 set $ps2 Control+Print
