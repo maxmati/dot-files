@@ -1,6 +1,6 @@
 #!/bin/bash
 # Certifaction VPN indicator for waybar. The tunnel (tun-cert) lives on krk-2
-# and needs a browser login on every connect.
+# and needs a browser login on every connect, then renews through OAuth refresh.
 #
 #   cert-vpn status   one line of JSON for waybar
 #   cert-vpn click    when the tunnel is down: restart the client on krk-2 so
@@ -13,8 +13,8 @@ set -u
 HOST="${CERT_VPN_HOST:-krk-2.tobiasz.memleak.pl}"
 UNIT=openvpn-certifaction
 LINK_PREFIX=https://auth.vpn.external.k8s.certifaction.io/
-SESSION_MINUTES=54   # the server ends a session at the first TLS renegotiation
-WARN_MINUTES=45
+# Renegotiation no longer ends the session. The client cannot determine when
+# server-side refresh state or identity-provider policy will require a login.
 SIGNAL=10            # custom/cert-vpn "signal" in the waybar config
 LOCKED=$'\xef\x80\xa3'
 UNLOCKED=$'\xef\x82\x9c'
@@ -28,7 +28,8 @@ remote() { # script for bash on krk-2, read from stdin
 state() {
 	remote 10 2>/dev/null <<-EOF
 		if ip link show tun-cert >/dev/null 2>&1; then
-			since=\$(sudo -n journalctl -u $UNIT -q -o short-unix --since -3h \
+			id=\$(systemctl show -p InvocationID --value $UNIT)
+			since=\$(sudo -n journalctl -u $UNIT _SYSTEMD_INVOCATION_ID=\$id -q -o short-unix \
 				-g 'Initialization Sequence Completed' -n 1 2>/dev/null | cut -d. -f1)
 			echo "up \${since:-0}"
 		else
@@ -43,19 +44,14 @@ emit() { # text, tooltip, class
 }
 
 status() {
-	local st since age
+	local st since
 	read -r st since < <(state)
 	case "${st:-}" in
 	up)
 		if [ "${since:-0}" -gt 0 ]; then
-			age=$((($(date +%s) - since) / 60))
-			if [ "$age" -ge "$WARN_MINUTES" ]; then
-				emit "$LOCKED VPN" "Certifaction VPN up since $(date -d "@$since" +%H:%M), will drop around $(date -d "@$((since + SESSION_MINUTES * 60))" +%H:%M)" expiring
-			else
-				emit "$LOCKED VPN" "Certifaction VPN up since $(date -d "@$since" +%H:%M), good until about $(date -d "@$((since + SESSION_MINUTES * 60))" +%H:%M)" up
-			fi
+			emit "$LOCKED VPN" "Certifaction VPN up since $(date -d "@$since" '+%d %b %H:%M'). Automatic renewal; drop time unknown" up
 		else
-			emit "$LOCKED VPN" "Certifaction VPN up" up
+			emit "$LOCKED VPN" "Certifaction VPN up. Automatic renewal; drop time unknown" up
 		fi
 		;;
 	down) emit "$UNLOCKED VPN" "Certifaction VPN down. Click to log in" down ;;

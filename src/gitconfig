@@ -21,8 +21,8 @@ excludesfile = ~/.gitignore_global
 	ui = auto
 [format]
 	signoff = true
-[commit]
-	gpgsign = true
+#[commit]
+#	gpgsign = true
 [url "git@github.com:certifaction"]
 	insteadOf = https://github.com/certifaction
 [url "git@github.com:eprescription-ch"]
