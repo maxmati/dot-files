@@ -4,9 +4,9 @@ mkdir -m 700 -p /tmp/maxmati/downloads
 <?php endif; ?>
 
 if status --is-interactive
-	keychain --eval --quiet -Q id_ed25519 | source
+	SHELL=(status fish-path) keychain --eval --quiet -Q id_ed25519 | source
 else
-	keychain --eval --quiet --noask -Q id_ed25519  | source
+	SHELL=(status fish-path) keychain --eval --quiet --noask -Q id_ed25519  | source
 end
 
 set PATH ~/.cargo/bin ~/.gem/ruby/2.4.0/bin/ ~/.local/bin $PATH
