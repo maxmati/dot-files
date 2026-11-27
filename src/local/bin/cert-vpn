@@ -19,6 +19,13 @@ SIGNAL=10            # custom/cert-vpn "signal" in the waybar config
 LOCKED=$'\xef\x80\xa3'
 UNLOCKED=$'\xef\x82\x9c'
 
+# waybar is started by sway from the systemd user manager, which does not know
+# the ssh agent that keychain starts in the login shell. Take it from the file
+# keychain writes on every login.
+if [ -z "${SSH_AUTH_SOCK:-}" ] && [ -r "$HOME/.keychain/$(hostname)-sh" ]; then
+	. "$HOME/.keychain/$(hostname)-sh"
+fi
+
 remote() { # script for bash on krk-2, read from stdin
 	timeout "$1" ssh -o BatchMode=yes -o ConnectTimeout=4 "$HOST" bash -s
 }
